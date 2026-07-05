@@ -1,5 +1,11 @@
 # @qirtaas/core
 
+## 0.2.0
+
+### Minor Changes
+
+- f14a7a0: Supports listing documents
+
 ## 0.1.0
 
 ### Minor Changes
