@@ -1,5 +1,13 @@
 # @qirtaas/react
 
+## 0.2.1
+
+### Patch Changes
+
+- c5a531e: Fix image upload going out of bounds
+- Updated dependencies [c5a531e]
+  - @qirtaas/core@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
