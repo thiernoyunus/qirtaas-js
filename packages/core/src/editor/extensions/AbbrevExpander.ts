@@ -11,6 +11,11 @@ export const DEFAULT_ABBREVIATIONS: Record<string, string> = {
   "بسم1": "bismillah",
   "بسم2": "bismillah",
   "بسم3": "bismillah",
+  "عز": "عَزَّ وَجَلَّ",
+  "سبح": "سُبْحَانَهُ وَتَعَالَى",
+  "جل": "جَلَّ وَعَلَا",
+  "رح2": "رَحِمَهُمَا اللهُ",
+  "رح11": "رَحِمَهَا اللهُ",
 };
 
 export const AbbrevExpander = Extension.create<AbbrevExpanderOptions>({

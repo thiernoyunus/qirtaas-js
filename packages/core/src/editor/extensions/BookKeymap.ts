@@ -6,7 +6,7 @@ export type KeymapAction =
   | { type: "poetry"; layout: "columns" | "interleaved" }
   | { type: "sectionEnd" }
   | { type: "insertText"; text: string }
-  | { type: "reservedMarginNote"; side: "right" | "left" };
+  | { type: "marginNote"; side: "right" | "left" };
 
 export interface BookKeymapOptions {
   bindings?: Record<string, KeymapAction | false>;
@@ -22,9 +22,8 @@ export const DEFAULT_BOOK_BINDINGS: Record<string, KeymapAction> = {
   "Alt+Numpad0": { type: "insertText", text: "«" },
   "Alt+Digit9": { type: "insertText", text: "»" },
   "Alt+Numpad9": { type: "insertText", text: "»" },
-  // Reserved until the marginNote node lands in chunk 4.
-  "Alt+KeyK": { type: "reservedMarginNote", side: "right" },
-  "Alt+KeyL": { type: "reservedMarginNote", side: "left" },
+  "Alt+KeyK": { type: "marginNote", side: "right" },
+  "Alt+KeyL": { type: "marginNote", side: "left" },
 };
 
 function poetryVerse(layout: "columns" | "interleaved") {
@@ -62,7 +61,7 @@ export const BookKeymap = Extension.create<BookKeymapOptions>({
           if (action.type === "poetry") return chain.insertContent(poetryVerse(action.layout)).run();
           if (action.type === "sectionEnd") return chain.insertContent({ type: "sectionEnd" }).run();
           if (action.type === "insertText") return chain.insertContent(action.text).run();
-          return true;
+          return chain.insertContent({ type: "marginNote", attrs: { side: action.side, text: "" } }).run();
         },
       },
     })];

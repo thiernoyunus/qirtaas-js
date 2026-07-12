@@ -14,7 +14,7 @@
   </head>
   <body>
     <div id="status">Custom extension has not loaded.</div>
-    <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+M ornament · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
+    <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+K/L margin notes · Alt+M ornament · /صفحة عنوان and /عناصر المسألة الفقهية templates · عز، سبح، جل، رح2، رح11 then Tab/F3 · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
     <div id="editor"></div>
     <script src="../../packages/core/dist/qirtaas.umd.js"></script>
     <script type="module">
@@ -40,6 +40,8 @@
               { type: "text", text: " وذكر الإمام " }, { type: "honorific", attrs: { type: "rahimahu" } },
               { type: "text", text: " هذا في المتن" },
               { type: "footnoteRef", attrs: { id: "demo-footnote", content: "نص الحاشية التجريبية", bracketStyle: "parens" } },
+              { type: "marginNote", attrs: { side: "right", text: "حاشية في الهامش الأيمن" } },
+              { type: "marginNote", attrs: { side: "left", text: "حاشية في الهامش الأيسر" } },
               { type: "text", text: ". " }, { type: "honorific", attrs: { type: "radiAnhu" } },
               { type: "text", text: " " }, { type: "honorific", attrs: { type: "bismillah" } },
             ] },

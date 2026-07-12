@@ -35,6 +35,7 @@ import { ImageNode } from "./extensions/ImageNode";
 import { Footnote } from "./extensions/Footnote";
 import { PoetryVerse, PoetryLine, PoetryHemistich } from "./extensions/PoetryVerse";
 import { SectionEnd } from "./extensions/SectionEnd";
+import { MarginNote } from "./extensions/MarginNote";
 import { BookHeading } from "./extensions/BookHeading";
 import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
 import { AbbrevExpander } from "./extensions/AbbrevExpander";
@@ -274,6 +275,7 @@ const editor = useEditor({
     PoetryLine,
     PoetryVerse,
     SectionEnd,
+    MarginNote,
     BookKeymap.configure({ bindings: props.keymap }),
     AbbrevExpander.configure({ abbreviations: props.abbreviations }),
     ImageNode.configure({
@@ -328,6 +330,26 @@ const editor = useEditor({
           }).run();
         } else if (commandId === "section-end") {
           editor.chain().focus().insertContent({ type: "sectionEnd" }).run();
+        } else if (commandId === "margin-note-right" || commandId === "margin-note-left") {
+          editor.chain().focus().insertContent({
+            type: "marginNote",
+            attrs: { side: commandId === "margin-note-left" ? "left" : "right", text: "" },
+          }).run();
+        } else if (commandId === "template-title-page") {
+          editor.chain().focus().insertContent([
+            { type: "heading", attrs: { level: 1, kind: "kitab", textAlign: "center" }, content: [{ type: "text", text: "عنوان الكتاب" }] },
+            { type: "paragraph", attrs: { textAlign: "center" }, content: [{ type: "text", text: "اسم المؤلف" }] },
+            { type: "paragraph", attrs: { textAlign: "center" }, content: [{ type: "honorific", attrs: { type: "bismillah" } }] },
+            { type: "sectionEnd" },
+          ]).run();
+        } else if (commandId === "template-fiqh-issue") {
+          editor.chain().focus().insertContent([
+            { type: "heading", attrs: { level: 1, kind: "bab" }, content: [{ type: "text", text: "عنوان المسألة" }] },
+            ...["تحرير محل النزاع", "الأقوال في المسألة", "الأدلة", "الترجيح"].map((text) => ({
+              type: "paragraph",
+              content: [{ type: "text", text: `${text}:` }],
+            })),
+          ]).run();
         } else if (commandId.startsWith("heading-")) {
           const kind = commandId.slice("heading-".length);
           editor.chain().focus().setHeading({ level: 1 }).updateAttributes("heading", { kind }).run();

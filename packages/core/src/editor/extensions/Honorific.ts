@@ -42,9 +42,6 @@ const shortcodeKeys = Object.keys(SHORTCODE_MAP).map(escapeRegex).join("|");
 const abbreviationKeys = Object.entries(HONORIFICS)
   .flatMap(([type, value]) => value.abbreviations.map((abbreviation) => [abbreviation, type] as const));
 export const HONORIFIC_ABBREVIATIONS = Object.fromEntries(abbreviationKeys) as Record<string, HonorificType>;
-// TODO(book-designer): Ithraa abbreviations عز, سبح, جل, رح2, and رح11 have
-// no exact standard ligature in U+FD40–U+FD4F. Keep them as text until a
-// Unicode-first product decision is made; never substitute their old PUA glyphs.
 const abbreviationRegex = new RegExp(`(?:^|\\s)(?<abbreviation>${Object.keys(HONORIFIC_ABBREVIATIONS).map(escapeRegex).join("|")}) $`);
 const inputRegex = new RegExp(`:(?<shortcode>${shortcodeKeys}):$`);
 const pasteRegex = new RegExp(`:(?<shortcode>${shortcodeKeys}):`, "g");
