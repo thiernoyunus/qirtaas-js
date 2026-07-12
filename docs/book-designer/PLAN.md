@@ -173,7 +173,7 @@ Theme picker/gallery, book metadata (title/author/colophon), shortcut settings p
 
 ## 9. Open questions (decide during P0)
 
-1. Paged.js footnote maturity — if the spike fails, choose: custom placement pass vs. server-side typesetter (Typst/WeasyPrint) for export while keeping Paged.js for preview.
+1. ✅ **DECIDED (P0, 2026-07-12): Paged.js is a GO** — RTL pages, per-page bottom footnotes, running heads, and page numbers all verified working (`docs/book-designer/P0/VERDICTS.md`). Two conditions from the spike: (a) the layout engine must emit **explicit `break-before: page` at kitab/bab boundaries** — natural overflow-driven pagination was unreliably slow; re-test performance on a chapter-length document early in P1; (b) footnote marker CSS must use the combined-declaration workaround documented in VERDICTS.md (Paged.js drops `::footnote-marker`/`::footnote-call` sub-rules). Server-side typesetter stays as an export-only fallback if P1 perf testing fails.
 2. Default expand key for abbreviations (F3 is awkward on Mac laptops — Tab? Space-after-match?).
 3. Whether the extension registry (A.1) ships as public API or stays internal to first-party packages initially.
 4. Uthmani Qur'an text inside themed pages: keep qirtaas's hosted-content dependency or bundle offline data for export fidelity.
