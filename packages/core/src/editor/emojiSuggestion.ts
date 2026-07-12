@@ -4,6 +4,7 @@ import { getOverlayTarget } from "../mount/overlay";
 import EmojiMenu from "./EmojiMenu.vue";
 import type { EmojiItem } from "@tiptap/extension-emoji";
 import type { Editor, Range } from "@tiptap/core";
+import type { HonorificType } from "./extensions/Honorific";
 
 type MenuItem = (EmojiItem | HonorificMenuItem) & { emoji?: string };
 
@@ -13,7 +14,7 @@ type HonorificMenuItem = {
   shortcodes: string[];
   tags: string[];
   isHonorific: true;
-  honorificType: "jj" | "saw";
+  honorificType: HonorificType;
 };
 
 const HONORIFIC_ITEMS: HonorificMenuItem[] = [

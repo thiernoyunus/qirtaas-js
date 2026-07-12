@@ -37,6 +37,19 @@ const COMMAND_DEFS: CommandDef[] = [
     labelAr: "ﷺ صلى الله عليه وسلم",
     icon: "pi pi-pencil",
   },
+  { id: "footnote-parens", labelEn: "Footnote ( )", labelAr: "حاشية ( )", icon: "pi pi-bookmark" },
+  { id: "footnote-brackets", labelEn: "Footnote [ ]", labelAr: "حاشية [ ]", icon: "pi pi-bookmark" },
+  { id: "poetry-columns", labelEn: "Poetry — columns", labelAr: "شعر — عمودان", icon: "pi pi-align-justify" },
+  { id: "poetry-interleaved", labelEn: "Poetry — interleaved", labelAr: "شعر — متداخل", icon: "pi pi-align-justify" },
+  { id: "section-end", labelEn: "Section end", labelAr: "نهاية المبحث", icon: "pi pi-minus" },
+  { id: "margin-note-right", labelEn: "Margin note — right", labelAr: "حاشية جانبية — يمين", icon: "pi pi-comment" },
+  { id: "margin-note-left", labelEn: "Margin note — left", labelAr: "حاشية جانبية — يسار", icon: "pi pi-comment" },
+  { id: "template-title-page", labelEn: "Title page", labelAr: "صفحة عنوان", icon: "pi pi-file" },
+  { id: "template-fiqh-issue", labelEn: "Fiqh issue outline", labelAr: "عناصر المسألة الفقهية", icon: "pi pi-list" },
+  { id: "heading-kitab", labelEn: "Kitab heading", labelAr: "عنوان كتاب", icon: "pi pi-heading" },
+  { id: "heading-bab", labelEn: "Bab heading", labelAr: "عنوان باب", icon: "pi pi-heading" },
+  { id: "heading-fasl", labelEn: "Fasl heading", labelAr: "عنوان فصل", icon: "pi pi-heading" },
+  { id: "heading-masala", labelEn: "Masala heading", labelAr: "عنوان مسألة", icon: "pi pi-heading" },
 ];
 
 function buildCommands(locale: string): SlashCommandItem[] {

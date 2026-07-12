@@ -22,6 +22,7 @@ import type { EditorMountOptions, EditorInstance, Json } from "./types";
 
 interface EmbedAppExposed {
   getJSON(): Json | null;
+  getHTML(): string;
   save(): Promise<void>;
   setEditable(editable: boolean): void;
 }
@@ -82,6 +83,9 @@ export function mountEditor(
         ref: appApi,
         documentId: options.documentId,
         initialContent: options.initialContent ?? null,
+        extensions: options.extensions,
+        keymap: options.keymap,
+        abbreviations: options.abbreviations,
         editable: liveState.editable,
         theme: liveState.theme,
         autofocus: options.autofocus ?? false,
@@ -113,6 +117,7 @@ export function mountEditor(
 
   return {
     getJSON: () => appApi.value?.getJSON() ?? null,
+    getHTML: () => appApi.value?.getHTML() ?? "",
     save: () => appApi.value?.save() ?? Promise.resolve(),
     setEditable: (editable) => {
       liveState.editable = editable;

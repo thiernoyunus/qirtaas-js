@@ -10,6 +10,7 @@ import "./styles/embed.css";
 
 export { createQirtaasClient } from "./client";
 export type { QirtaasClient, QirtaasClientOptions } from "./client";
+export type { KeymapAction } from "./editor/extensions/BookKeymap";
 export type { DuplicateDocumentResult } from "./mount/duplicateDocument";
 export type { DocumentSummary } from "./mount/listDocuments";
 export type { ShareInfo } from "./mount/sharing";

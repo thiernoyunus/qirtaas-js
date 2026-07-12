@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Qirtaas Phase 1 demo</title>
+    <link rel="stylesheet" href="../../packages/core/dist/qirtaas.css" />
+    <style>
+      html { color-scheme: light; }
+      body { margin: 0; font-family: sans-serif; background: #fff; color: #111; }
+      #status { padding: 0.75rem 1rem; background: #fff3cd; }
+      #usage { padding: 0.5rem 1rem; background: #eef6ff; font-size: 0.9rem; }
+      #editor { height: calc(100vh - 9rem); }
+    </style>
+  </head>
+  <body>
+    <div id="status">Custom extension has not loaded.</div>
+    <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+K/L margin notes · Alt+M ornament · /صفحة عنوان and /عناصر المسألة الفقهية templates · عز، سبح، جل، رح2، رح11 then Tab/F3 · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
+    <div id="editor"></div>
+    <script src="../../packages/core/dist/qirtaas.umd.js"></script>
+    <script type="module">
+      import { Extension } from "https://esm.sh/@tiptap/core@3.20.4";
+
+      const registryProof = Extension.create({
+        name: "registryProof",
+        onCreate() {
+          const status = document.querySelector("#status");
+          status.textContent = "Custom extension loaded successfully.";
+          status.style.background = "#d1e7dd";
+        },
+      });
+
+      const client = Qirtaas.createQirtaasClient({ getToken: () => "local-demo" });
+      window.editor = client.mountEditor("#editor", {
+        initialContent: {
+          type: "doc",
+          content: [
+            { type: "heading", attrs: { level: 1, kind: "kitab" }, content: [{ type: "text", text: "كتاب العلم" }] },
+            { type: "paragraph", attrs: { dir: "rtl", textAlign: "right" }, content: [
+              { type: "text", text: "قال النبي " }, { type: "honorific", attrs: { type: "saw" } },
+              { type: "text", text: " وذكر الإمام " }, { type: "honorific", attrs: { type: "rahimahu" } },
+              { type: "text", text: " هذا في المتن" },
+              { type: "footnoteRef", attrs: { id: "demo-footnote", content: "نص الحاشية التجريبية", bracketStyle: "parens" } },
+              { type: "marginNote", attrs: { side: "right", text: "حاشية في الهامش الأيمن" } },
+              { type: "marginNote", attrs: { side: "left", text: "حاشية في الهامش الأيسر" } },
+              { type: "text", text: ". " }, { type: "honorific", attrs: { type: "radiAnhu" } },
+              { type: "text", text: " " }, { type: "honorific", attrs: { type: "bismillah" } },
+            ] },
+            { type: "heading", attrs: { level: 2, kind: "bab" }, content: [{ type: "text", text: "باب الشعر" }] },
+            { type: "poetryVerse", attrs: { layout: "columns" }, content: [
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "ألا كل شيء ما خلا الله باطل" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "وكل نعيم لا محالة زائل" }] }] },
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "وكل ابن أنثى لو تطاول عمره" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "إلى الغاية القصوى فللقبر آيل" }] }] },
+            ] },
+            { type: "poetryVerse", attrs: { layout: "interleaved" }, content: [
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "العلم يرفع بيتا لا عماد له" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "والجهل يهدم بيت العز والكرم" }] }] },
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "فاطلب لنفسك علما تستضيء به" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "فالعلم نور وفي الجهل الظلام" }] }] },
+            ] },
+            { type: "sectionEnd", attrs: { variant: "flower-row" } },
+          ],
+        },
+        autosave: { enabled: false },
+        extensions: [registryProof],
+        keymap: { "Alt+KeyF": { type: "insertText", text: "★" } },
+        abbreviations: { demo1: "Custom expansion works" },
+      });
+    </script>
+  </body>
+</html>

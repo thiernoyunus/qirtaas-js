@@ -1,23 +1,19 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { NodeViewWrapper } from "@tiptap/vue-3";
-import type { HonorificType } from "./extensions/Honorific";
-
-const GLYPHS: Record<HonorificType, { text: string; title: string }> = {
-  jj: { text: "ﷻ", title: "جل جلاله" },
-  saw: { text: "ﷺ", title: "صلى الله عليه وسلم" },
-};
+import { HONORIFICS, type HonorificType } from "./extensions/Honorific";
 
 const props = defineProps<{
   node: { attrs: { type: HonorificType } };
 }>();
 
-const glyph = GLYPHS[props.node.attrs.type];
+const glyph = computed(() => HONORIFICS[props.node.attrs.type]);
 </script>
 
 <template>
   <NodeViewWrapper as="span" class="inline" contenteditable="false">
-    <span class="honorific" dir="rtl" :title="glyph.title">
-      {{ glyph.text }}
+    <span class="honorific" dir="rtl" :title="glyph.phrase">
+      {{ glyph.glyph }}
     </span>
   </NodeViewWrapper>
 </template>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>P0 Spike 3 — Alt-key capture (Ithraa shortcuts)</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 20px; color: #111; }
+  h1 { font-size: 18px; }
+  p.note { color: #444; max-width: 800px; font-size: 13px; line-height: 1.5; }
+  .caveat { background: #fff3cd; border: 1px solid #e0c36a; padding: 10px 14px; border-radius: 6px; font-size: 13px; max-width: 800px; }
+  #editable {
+    border: 2px solid #888;
+    border-radius: 6px;
+    min-height: 80px;
+    padding: 12px;
+    font-size: 16px;
+    margin: 16px 0;
+    background: #fafafa;
+  }
+  #editable:focus { outline: 2px solid #3b82f6; background: #fff; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; }
+  th { background: #f2f2f2; }
+  .yes { color: #1a7431; font-weight: bold; }
+  .no { color: #a11; font-weight: bold; }
+  code { background: #eee; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>Spike 3 — Can the browser reliably capture Ithraa's Alt shortcuts?</h1>
+
+<p class="note">
+  Target combos: <code>Alt+X</code> <code>Alt+Z</code> <code>Alt+Q</code> <code>Alt+W</code> <code>Alt+M</code>
+  <code>Alt+0</code> <code>Alt+9</code> <code>Alt+K</code> <code>Alt+L</code>.
+  The listener below is attached to the contenteditable box and matches on
+  <code>event.code</code> (physical key position: KeyX/KeyZ/KeyQ/KeyW/KeyM/Digit0/Digit9/KeyK/KeyL)
+  combined with <code>event.altKey</code>, then calls <code>preventDefault()</code>. This mirrors the
+  PLAN.md §5 strategy ("event.code-based so macOS Option works").
+</p>
+
+<div class="caveat">
+  <strong>Caveat (read before trusting automated results):</strong> synthetic keyboard events sent via
+  browser-automation protocols (CDP / WebDriver "key" actions) do not necessarily reproduce everything a
+  physical macOS Option-key press does at the OS/IME level (e.g. dead-key composition, the OS swallowing
+  the keystroke before it reaches the browser, or differences between how CDP synthesizes <code>altKey</code>
+  vs a real hardware event). A PASS/FAIL from this automated run is evidence, not proof, for real hardware.
+  <strong>This page is built to remain usable for a human to test manually</strong> — focus the box below and
+  physically press each Option/Alt combo on a real Mac keyboard, then read the log table.
+</div>
+
+<div id="editable" contenteditable="true" spellcheck="false">Click here, then press the shortcut combos (e.g. Option+X on macOS / Alt+X on Windows/Linux).</div>
+
+<button id="clear-btn" type="button">Clear log</button>
+<button id="copy-btn" type="button">Copy log as JSON</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>code</th>
+      <th>key</th>
+      <th>altKey</th>
+      <th>matched target?</th>
+      <th>preventDefault called?</th>
+      <th>editable text length before → after</th>
+      <th>leaked char?</th>
+    </tr>
+  </thead>
+  <tbody id="log-body"></tbody>
+</table>
+
+<h2 style="font-size:15px;margin-top:20px;">Raw log (window.__log)</h2>
+<pre id="raw-log" style="background:#f7f7f7;border:1px solid #ddd;padding:10px;font-size:12px;white-space:pre-wrap;"></pre>
+
+<script>
+  const TARGETS = new Set([
+    "KeyX", "KeyZ", "KeyQ", "KeyW", "KeyM",
+    "Digit0", "Digit9", "KeyK", "KeyL"
+  ]);
+
+  window.__log = [];
+  const editable = document.getElementById("editable");
+  const logBody = document.getElementById("log-body");
+  const rawLog = document.getElementById("raw-log");
+
+  function refreshRaw() {
+    rawLog.textContent = JSON.stringify(window.__log, null, 2);
+  }
+
+  editable.addEventListener("keydown", function (e) {
+    const isTarget = e.altKey && TARGETS.has(e.code);
+    const textBefore = editable.textContent;
+
+    let prevented = false;
+    if (isTarget) {
+      e.preventDefault();
+      prevented = true;
+    }
+
+    // Measure "after" on next tick, since character insertion (if any) happens
+    // after this handler returns for non-prevented events.
+    setTimeout(function () {
+      const textAfter = editable.textContent;
+      const entry = {
+        n: window.__log.length + 1,
+        code: e.code,
+        key: e.key,
+        altKey: e.altKey,
+        matchedTarget: isTarget,
+        prevented: prevented,
+        textBefore: textBefore,
+        textAfter: textAfter,
+        leaked: textAfter !== textBefore,
+        ts: Date.now()
+      };
+      window.__log.push(entry);
+      renderRow(entry);
+      refreshRaw();
+    }, 30);
+  }, true);
+
+  function renderRow(entry) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${entry.n}</td>
+      <td><code>${entry.code}</code></td>
+      <td><code>${escapeHtml(entry.key)}</code></td>
+      <td>${entry.altKey ? "true" : "false"}</td>
+      <td class="${entry.matchedTarget ? 'yes' : 'no'}">${entry.matchedTarget ? "YES" : "no"}</td>
+      <td class="${entry.prevented ? 'yes' : 'no'}">${entry.prevented ? "YES" : "no"}</td>
+      <td>${entry.textBefore.length} → ${entry.textAfter.length}</td>
+      <td class="${entry.leaked ? 'no' : 'yes'}">${entry.leaked ? "LEAKED: " + escapeHtml(entry.textAfter) : "clean"}</td>
+    `;
+    logBody.appendChild(tr);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  document.getElementById("clear-btn").addEventListener("click", function () {
+    window.__log = [];
+    logBody.innerHTML = "";
+    refreshRaw();
+    editable.textContent = "Click here, then press the shortcut combos (e.g. Option+X on macOS / Alt+X on Windows/Linux).";
+  });
+
+  document.getElementById("copy-btn").addEventListener("click", function () {
+    navigator.clipboard && navigator.clipboard.writeText(JSON.stringify(window.__log, null, 2));
+  });
+
+  refreshRaw();
+</script>
+
+</body>
+</html>

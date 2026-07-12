@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>P0 Spike 2 — Honorific Glyph Coverage Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    direction: rtl;
+    margin: 20px;
+    color: #111;
+    background: #fff;
+  }
+  h1 { font-size: 18px; }
+  p.note { color: #555; font-size: 13px; max-width: 900px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  th { background: #f2f2f2; position: sticky; top: 0; }
+  .glyph-cell {
+    font-size: 26px;
+    line-height: 1.4;
+  }
+  .stack-serif { font-family: serif; }
+  .stack-geeza { font-family: "Geeza Pro", serif; }
+  .stack-scheherazade { font-family: "Scheherazade New", serif; }
+  .stack-amiri { font-family: "Amiri", serif; }
+  .stack-kfgqpc { font-family: "KFGQPC Arabic Symbols 01", serif; }
+
+  .status-SUPPORTED { background: #e6f4ea; color: #1a7431; font-weight: bold; }
+  .status-TOFU { background: #fbeaea; color: #a11; font-weight: bold; }
+  .status-UNKNOWN { background: #fff8e1; color: #8a6d00; font-weight: bold; }
+
+  .cp-code { font-family: monospace; direction: ltr; display: inline-block; }
+</style>
+</head>
+<body>
+
+<h1>Spike 2 — Honorific / Qur&#39;anic-bracket glyph coverage across font stacks</h1>
+<p class="note">
+  Each row is a codepoint from the plan's honorific inventory (U+FDFA/FDFB/FDFD, ornate brackets U+FD3E/FD3F,
+  and the Unicode 14 Arabic Extended-B honorific block U+FD40&ndash;U+FD4F). Each column is a font stack.
+  A cell is marked SUPPORTED/TOFU by a canvas glyph-width heuristic (see script), and also shows the live
+  rendered glyph so a human can visually double check.
+  &#64;font-face for &quot;KFGQPC Arabic Symbols 01&quot; is included ONLY IF a real font file was found on disk during this spike;
+  see the note at the bottom of the page for what was actually found.
+</p>
+
+<table id="matrix">
+  <thead>
+    <tr>
+      <th>Codepoint</th>
+      <th>Name</th>
+      <th class="stack-serif">(a) serif (system default)</th>
+      <th class="stack-geeza">(b) Geeza Pro</th>
+      <th class="stack-scheherazade">(c) Scheherazade New</th>
+      <th class="stack-amiri">(d) Amiri (Google Fonts)</th>
+      <th class="stack-kfgqpc">(e) KFGQPC Arabic Symbols 01</th>
+    </tr>
+  </thead>
+  <tbody id="matrix-body">
+  </tbody>
+</table>
+
+<h2 style="font-size:15px;margin-top:24px;">Machine-readable summary (also in window.__matrix)</h2>
+<pre id="summary" style="direction:ltr;text-align:left;font-size:12px;background:#f7f7f7;padding:10px;border:1px solid #ddd;white-space:pre-wrap;"></pre>
+
+<script>
+  // Codepoint inventory per the spike brief.
+  const CODEPOINTS = [
+    { cp: 0xFDFA, name: "ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM (صلى الله عليه وسلم)" },
+    { cp: 0xFDFB, name: "ARABIC LIGATURE JALLAJALALOUHOU (جل جلاله)" },
+    { cp: 0xFDFD, name: "ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM" },
+    { cp: 0xFD3E, name: "ORNATE LEFT PARENTHESIS ﴾" },
+    { cp: 0xFD3F, name: "ORNATE RIGHT PARENTHESIS ﴿" },
+    { cp: 0xFD40, name: "ARABIC LIGATURE RAHIMAHU-LLAH" },
+    { cp: 0xFD41, name: "ARABIC LIGATURE RAHIMAHA-LLAH" },
+    { cp: 0xFD42, name: "ARABIC LIGATURE RAHIMAHUMA-LLAH" },
+    { cp: 0xFD43, name: "ARABIC LIGATURE RAHIMAHUM-LLAH" },
+    { cp: 0xFD44, name: "ARABIC LIGATURE RAHIMAHA-LLAH (var)" },
+    { cp: 0xFD45, name: "ARABIC LIGATURE RADI ALLAHU ANH" },
+    { cp: 0xFD46, name: "ARABIC LIGATURE RADI ALLAHU ANHA" },
+    { cp: 0xFD47, name: "ARABIC LIGATURE RADI ALLAHU ANHUMA" },
+    { cp: 0xFD48, name: "ARABIC LIGATURE RADI ALLAHU ANHUM" },
+    { cp: 0xFD49, name: "ARABIC LIGATURE RADI ALLAHU ANHUNNA" },
+    { cp: 0xFD4A, name: "ARABIC LIGATURE ALAYHIS-SALAM" },
+    { cp: 0xFD4B, name: "ARABIC LIGATURE ALAYHAS-SALAM" },
+    { cp: 0xFD4C, name: "ARABIC LIGATURE ALAYHIMAS-SALAM" },
+    { cp: 0xFD4D, name: "ARABIC LIGATURE ALAYHIMU-S-SALAM" },
+    { cp: 0xFD4E, name: "ARABIC LIGATURE RAHMATULLAH ALAYH" },
+    { cp: 0xFD4F, name: "ARABIC LIGATURE RAHMATULLAH ALAYHA" },
+  ];
+
+  const STACKS = [
+    { id: "serif", css: "stack-serif" },
+    { id: "geeza", css: "stack-geeza" },
+    { id: "scheherazade", css: "stack-scheherazade" },
+    { id: "amiri", css: "stack-amiri" },
+    { id: "kfgqpc", css: "stack-kfgqpc" },
+  ];
+
+  function measure(ch, fontCss) {
+    const canvas = measure._canvas || (measure._canvas = document.createElement("canvas"));
+    const ctx = canvas.getContext("2d");
+    // resolve computed font string for the stack by creating a hidden probe span
+    ctx.font = fontCss;
+    return ctx.measureText(ch).width;
+  }
+
+  function getComputedFontFor(cssClass) {
+    const probe = document.createElement("span");
+    probe.className = cssClass;
+    probe.style.fontSize = "26px";
+    probe.style.position = "absolute";
+    probe.style.visibility = "hidden";
+    document.body.appendChild(probe);
+    const cs = getComputedStyle(probe);
+    const fontStr = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    document.body.removeChild(probe);
+    return fontStr;
+  }
+
+  function classify(ch, fontStr) {
+    // Compare glyph width against .notdef (use a codepoint that is virtually
+    // guaranteed to be missing from every font: U+FFFE, a noncharacter) in the
+    // SAME font. If widths match closely AND both are nonzero-ish, likely tofu.
+    // Also treat width ~0 as a strong TOFU/absent signal for RTL combining forms.
+    const wGlyph = measure(ch, fontStr);
+    const wNotdef = measure("￾", fontStr);
+    const wSpace = measure(" ", fontStr) || 1;
+
+    if (wGlyph <= 0.5) return "TOFU"; // zero-width: font has no glyph and returns nothing
+    const ratio = wNotdef > 0 ? wGlyph / wNotdef : null;
+    if (ratio !== null && Math.abs(ratio - 1) < 0.03 && wGlyph > wSpace * 0.5) {
+      return "TOFU"; // matches the .notdef box width closely -> likely a tofu box
+    }
+    return "SUPPORTED";
+  }
+
+  const tbody = document.getElementById("matrix-body");
+  const summary = { generatedAt: new Date().toISOString(), rows: [] };
+
+  const fontStrCache = {};
+  STACKS.forEach(s => { fontStrCache[s.id] = getComputedFontFor(s.css); });
+
+  CODEPOINTS.forEach(({ cp, name }) => {
+    const ch = String.fromCodePoint(cp);
+    const tr = document.createElement("tr");
+
+    const tdCp = document.createElement("td");
+    tdCp.innerHTML = `<span class="cp-code">U+${cp.toString(16).toUpperCase()}</span>`;
+    tr.appendChild(tdCp);
+
+    const tdName = document.createElement("td");
+    tdName.style.fontSize = "11px";
+    tdName.style.textAlign = "left";
+    tdName.style.direction = "ltr";
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+
+    const rowResult = { cp: "U+" + cp.toString(16).toUpperCase(), name, results: {} };
+
+    STACKS.forEach(s => {
+      const td = document.createElement("td");
+      td.className = "glyph-cell " + s.css;
+      const status = classify(ch, fontStrCache[s.id]);
+      td.textContent = ch;
+      const statusSpan = document.createElement("div");
+      statusSpan.className = "status-" + status;
+      statusSpan.style.fontSize = "10px";
+      statusSpan.style.marginTop = "2px";
+      statusSpan.textContent = status;
+      td.appendChild(statusSpan);
+      td.setAttribute("data-status", status);
+      td.setAttribute("data-stack", s.id);
+      tr.appendChild(td);
+      rowResult.results[s.id] = status;
+    });
+
+    tbody.appendChild(tr);
+    summary.rows.push(rowResult);
+  });
+
+  window.__matrix = summary;
+  document.getElementById("summary").textContent = JSON.stringify(summary, null, 2);
+</script>
+
+<h2 style="font-size:15px;margin-top:24px;">Font-file search result (KFGQPC Arabic Symbols 01 / embedded Word fonts)</h2>
+<p class="note" id="font-search-note">
+  Searched recursively for .ttf/.otf under
+  /Users/thiernodiallo/Downloads/ithraa_template/ and under the unzipped .dotx
+  scratchpad path (word/fonts/). <strong>No .ttf/.otf font files exist in either
+  location.</strong> The dotx-inventory.md research (section 3) already established
+  that neither .dotx archive embeds any font parts (no `fontdata` parts, no
+  `w:embedRegular`/`embedSystem` refs) — the template only *references* the fonts
+  "KFGQPC Arabic Symbols 01" and "AGA Arabesque" by name, assuming they are
+  separately installed on the user's machine. No @font-face for KFGQPC is loaded
+  on this page because no font file was available to embed.
+</p>
+
+<p class="note" id="methodology-caveat">
+  <strong>Methodology caveat (read before trusting the SUPPORTED/TOFU column above):</strong>
+  on the P0 test platform (macOS, Chromium-based automated browser), <em>every</em>
+  column — including "(e) KFGQPC Arabic Symbols 01", which has no @font-face and no
+  such font installed, and even generic "(a) serif" — rendered every single codepoint
+  as a real ligature glyph, not tofu. This is because the browser silently substitutes
+  glyphs from whatever Arabic-capable system font IS installed whenever the requested
+  font-family lacks the glyph (standard CSS font-fallback behavior). That is actually
+  representative of what an end user would SEE (a real glyph, not a box) — but it means
+  this test cannot isolate "does font X specifically carry this glyph" from "did the OS
+  quietly substitute a different font." The canvas-width TOFU heuristic in this page's
+  script has the same blind spot for the same reason. Practical implication: on this
+  Mac, the Unicode-14 honorific block (U+FD40-FD4F) already renders correctly with
+  zero custom fonts shipped, via macOS's own Arabic font fallback. That is NOT proof
+  that Windows or older Android will do the same — those platforms have historically
+  had weaker/no coverage of this brand-new Unicode 14 block, and verifying them requires
+  a human tester on that actual OS (this spike cannot reach a Windows/Android renderer).
+</p>
+
+</body>
+</html>
