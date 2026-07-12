@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { NodeViewWrapper } from "@tiptap/vue-3";
 import type { Editor } from "@tiptap/core";
 import type { FootnoteBracketStyle } from "./extensions/Footnote";
@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 
 const open = ref(false);
+const isEditable = ref(props.editor.isEditable);
 const arabicNumber = computed(() =>
   String(props.node.attrs.number).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]!),
 );
@@ -20,6 +21,13 @@ const marker = computed(() =>
     : `(${arabicNumber.value})`,
 );
 
+function syncEditable() {
+  isEditable.value = props.editor.isEditable;
+}
+
+onMounted(() => props.editor.on("update", syncEditable));
+onBeforeUnmount(() => props.editor.off("update", syncEditable));
+
 function save(event: Event) {
   props.updateAttributes({ content: (event.target as HTMLElement).innerText });
 }
@@ -27,9 +35,9 @@ function save(event: Event) {
 
 <template>
   <NodeViewWrapper as="span" class="footnote-ref" contenteditable="false">
-    <button v-if="props.editor.isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" @click="open = !open">{{ marker }}</button>
+    <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" @click="open = !open">{{ marker }}</button>
     <span v-else>{{ props.node.attrs.content }}</span>
-    <span v-if="props.editor.isEditable && open" class="footnote-popover" role="dialog" @keydown.stop @mousedown.stop>
+    <span v-if="isEditable && open" class="footnote-popover" role="dialog" @keydown.stop @mousedown.stop>
       <span class="footnote-editor" contenteditable="true" dir="auto" @blur="save">{{ props.node.attrs.content }}</span>
     </span>
   </NodeViewWrapper>
