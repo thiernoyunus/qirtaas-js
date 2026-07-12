@@ -9,12 +9,12 @@
       body { margin: 0; font-family: sans-serif; }
       #status { padding: 0.75rem 1rem; background: #fff3cd; }
       #usage { padding: 0.5rem 1rem; background: #eef6ff; font-size: 0.9rem; }
-      #editor { height: calc(100vh - 6rem); }
+      #editor { height: calc(100vh - 9rem); }
     </style>
   </head>
   <body>
     <div id="status">Custom extension has not loaded.</div>
-    <div id="usage">Try the slash menu for footnotes, both poetry layouts, section ends, and كتاب/باب/فصل/مسألة headings. Click a footnote number to edit its text; Enter adds a poetry line.</div>
+    <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+M ornament · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
     <div id="editor"></div>
     <script src="../../packages/core/dist/qirtaas.umd.js"></script>
     <script type="module">
@@ -57,6 +57,8 @@
         },
         autosave: { enabled: false },
         extensions: [registryProof],
+        keymap: { "Alt+KeyF": { type: "insertText", text: "★" } },
+        abbreviations: { demo1: "Custom expansion works" },
       });
     </script>
   </body>

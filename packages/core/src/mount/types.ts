@@ -1,5 +1,6 @@
 // Public option/handle types for the embeddable editor + renderer mount APIs.
 import type { AnyExtension } from "@tiptap/core";
+import type { KeymapAction } from "../editor/extensions/BookKeymap";
 
 export type Json = Record<string, unknown>;
 
@@ -31,6 +32,10 @@ export interface EditorMountOptions {
   initialContent?: Json | null;
   /** TipTap extensions appended after Qirtaas's built-in extensions. */
   extensions?: AnyExtension[];
+  /** Ithraa-style keyboard shortcut overrides; false disables a binding. */
+  keymap?: Record<string, KeymapAction | false>;
+  /** Extra abbreviation expansions. Honorific names insert honorific nodes. */
+  abbreviations?: Record<string, string>;
   locale?: Locale;
   theme?: Theme;
   /** Start read-only. Editing can be toggled later via setEditable(). */

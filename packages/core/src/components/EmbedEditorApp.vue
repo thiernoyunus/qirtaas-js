@@ -18,12 +18,15 @@ import { docIsEmpty } from "../editor/docUtils";
 import { useDocumentAutosave } from "../composables/useDocumentAutosave";
 import type { ErrorCode, Json, SaveState } from "../mount/types";
 import type { AnyExtension } from "@tiptap/core";
+import type { KeymapAction } from "../editor/extensions/BookKeymap";
 
 const props = withDefaults(
   defineProps<{
     documentId?: string;
     initialContent?: Json | null;
     extensions?: AnyExtension[];
+    keymap?: Record<string, KeymapAction | false>;
+    abbreviations?: Record<string, string>;
     editable?: boolean;
     autofocus?: boolean;
     theme?: "light" | "dark";
@@ -229,6 +232,8 @@ defineExpose({
           ref="editorRef"
           :model-value="content"
           :extensions="extensions"
+          :keymap="keymap"
+          :abbreviations="abbreviations"
           :editable="editable && !loadFailed"
           :autofocus="autofocus"
           :document-id="docId ?? undefined"

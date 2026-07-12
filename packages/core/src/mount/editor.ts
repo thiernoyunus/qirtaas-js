@@ -84,6 +84,8 @@ export function mountEditor(
         documentId: options.documentId,
         initialContent: options.initialContent ?? null,
         extensions: options.extensions,
+        keymap: options.keymap,
+        abbreviations: options.abbreviations,
         editable: liveState.editable,
         theme: liveState.theme,
         autofocus: options.autofocus ?? false,

@@ -36,6 +36,8 @@ import { Footnote } from "./extensions/Footnote";
 import { PoetryVerse, PoetryLine, PoetryHemistich } from "./extensions/PoetryVerse";
 import { SectionEnd } from "./extensions/SectionEnd";
 import { BookHeading } from "./extensions/BookHeading";
+import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
+import { AbbrevExpander } from "./extensions/AbbrevExpander";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -61,6 +63,8 @@ const props = withDefaults(
     autofocus?: boolean;
     documentId?: string;
     extensions?: AnyExtension[];
+    keymap?: Record<string, KeymapAction | false>;
+    abbreviations?: Record<string, string>;
   }>(),
   { editable: true, autofocus: false, documentId: undefined }
 );
@@ -270,6 +274,8 @@ const editor = useEditor({
     PoetryLine,
     PoetryVerse,
     SectionEnd,
+    BookKeymap.configure({ bindings: props.keymap }),
+    AbbrevExpander.configure({ abbreviations: props.abbreviations }),
     ImageNode.configure({
       documentId: props.documentId,
       translate: (key: string) => t(key),
