@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 1 | Paged.js: RTL A4 pages + footnotes-at-bottom + running heads + page numbers | ⚠️ PARTIAL | `spikes/p0/pagedjs-rtl-footnotes/index.html` — works once forced page-breaks + a footnote-CSS gotcha are handled; natural overflow pagination was unreliably slow, needs perf re-test on chapter-length docs |
 | 2 | Honorific glyph rendering: U+FDFA/FDFB/FDFD, U+FD40–FD4F, ﴿﴾ across fonts | ⚠️ PARTIAL | `spikes/p0/honorifics/index.html` — all codepoints render on macOS via system fallback with zero custom fonts, but test can't isolate per-font coverage; Windows/Android unverified |
-| 3 | Alt-key capture in browser (Alt+X/Q/W/M/0/9/K/L via event.code) | ⚠️ PARTIAL | `spikes/p0/altkeys/index.html` — event flow confirmed reachable, but automation couldn't populate event.code or trigger real macOS Option composition; needs manual hardware test (page is ready for it) |
+| 3 | Alt-key capture in browser (Alt+X/Q/W/M/0/9/K/L via event.code) | ✅ PASS (manual, Chrome/macOS 2026-07-12) | User physically tested: Option+X and Option+M matched via event.code, preventDefault blocked the composed ≈/µ chars from leaking. Caveat: numpad digits report `Numpad0`/`Numpad9` — the real keymap service MUST match Numpad* codes in addition to Digit*. Safari untested (optional). |
 
 Verdicts land in `docs/book-designer/P0/VERDICTS.md` (with screenshots in `docs/book-designer/P0/screenshots/`).
 
@@ -20,7 +20,7 @@ Verdicts land in `docs/book-designer/P0/VERDICTS.md` (with screenshots in `docs/
 - [ ] P0 committed; P1 kickoff notes written
 
 ## Remaining P0 items (need a human or another platform)
-- **Spike 3 manual test**: serve the repo (`python3 -m http.server 8123` from repo root), open `http://localhost:8123/spikes/p0/altkeys/`, physically press Alt/Option + X, Z, Q, W, M, 0, 9, K, L on a real Mac keyboard, and read the on-page log table. Question: does `event.code` matching + `preventDefault()` stop macOS Option characters (≈, Ω…) from leaking into the editable? Record the result here.
+- ~~Spike 3 manual test~~ ✅ DONE 2026-07-12 (Chrome/macOS): event.code matching + preventDefault works on real hardware; no composed-char leaks on matched combos. New requirement for P1 keymap service: match `Numpad0-9` as well as `Digit0-9`.
 - **Spike 2 cross-platform**: open `http://localhost:8123/spikes/p0/honorifics/` on Windows and Android; macOS renders all 21 honorific codepoints via system fallback, other platforms unverified. Until verified, P1 ships a webfont for honorifics regardless (safe default).
 
 ## P0 decisions already made
