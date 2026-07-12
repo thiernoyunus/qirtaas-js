@@ -2,7 +2,25 @@
 
 > Pick-up file. If a session dies, read [PLAN.md](./PLAN.md) then this file, and continue from the first unchecked item. Keep this file updated after every work chunk.
 
-## Current phase: P1 — Author like Ithraa (Word-template parity in the browser)
+## Current phase: P2 — Book mode (real pages)
+
+Branch: `book-designer/p2-book-mode` (off the P1 branch). **Product decision (2026-07-12, with user):** a document has a **mode** chosen at creation and kept for its life — no live toggling, no separate "preview":
+- **Notes mode** = the existing scrolling editor (drafting / personal notes).
+- **Book mode** = you edit directly on real pages (Word-style page view). This is where headers, footers, page numbers, footnotes-at-bottom, designs, and PDF export live. Book mode *is* the page view.
+
+Build order (each layer editable + reliable before the next; reflow-on-pause, NOT per-keystroke — the fragile "live pagination" path is explicitly rejected):
+| Layer | Scope | Status |
+|---|---|---|
+| 1 | Notes/Book mode selection (public `pageMode: 'notes' \| 'book'` mount option + runtime setter) + book-mode **page surface**: editor content on an A4 page (white page, real margins, gray backdrop, subtle shadow), fully editable in place. CSS-driven; NO pagination engine yet. Demo gets a mode switch. | ⏳ in progress |
+| 2 | Real page-break divisions (see page 1 end / page 2 begin) — measure-and-break or Paged.js-on-pause | ☐ |
+| 3 | Editable running header/footer + page numbers (set once, repeat every page — click top/bottom to edit) | ☐ |
+| 4 | Footnotes pinned to bottom of their page (Paged.js `float:footnote`, proven in P0) | ☐ |
+| 5 | Theme/design system + 5 presets + ornaments (PLAN §4, §6 Workstream C) | ☐ |
+| 6 | PDF export (browser print → Paged.js first; server render later) | ☐ |
+
+Plus a standalone follow-up: honorific webfont asset pass (cross-platform glyph coverage) + the two P1 deferrals (getHTML NodeView serialization, SectionEnd variant rendering).
+
+## Phase P1 — Author like Ithraa (Word-template parity in the browser) ✅ COMPLETE
 
 Branch: `book-designer/p1-editor-extensions` (off the P0 PR branch). PLAN §6 workstreams A, B, D, split into sequential chunks — each chunk = one delegated agent, build must pass, committed before the next starts (all touch `DocumentEditor.vue` registration, so no parallel chunks).
 

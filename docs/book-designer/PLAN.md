@@ -115,6 +115,14 @@ A theme is one JSON file + one SVG sprite/asset folder. Draft shape:
 - **Abbreviation expander** (the F3 workflow, made better): type `ص1` and hit the expand key (default Tab or F3 — configurable) → honorific node. Ship the full 17-entry Ithraa table + بسم1/2/3 as defaults; users can add their own abbreviations. Also auto-suggest: typing an abbreviation shows an inline hint of the glyph.
 - Keep existing `:saw:` input rules working.
 
+## 5b. Document mode — Notes vs Book (decided P2, 2026-07-12 with user)
+
+A document has a **mode fixed at creation**, not a live toggle and not a read-only preview:
+- **Notes mode** — the existing scrolling editor. Drafting, organizing, personal notes.
+- **Book mode** — the user edits *directly* on real pages (Word/Docs page view). Book mode is the page view; there is no separate "flip to preview" step. This is where all the book furniture lives.
+
+Rationale: the user identified that a read-only preview forces blind writing + constant flipping. Editing on the page removes that. The one accepted compromise is **reflow-on-pause, not per-keystroke** — true live per-keystroke pagination is fragile and explicitly out of scope. Headers/footers follow the Word model: set once per document (later: per-kitab), repeat on every page, edited by clicking the page's top/bottom zone. Built in layers (see STATUS.md P2 table): page surface → real page breaks → header/footer/page-numbers → footnotes-at-bottom → themes → PDF export.
+
 ## 6. Workstreams
 
 Independent enough to run in parallel after A lands its API decisions.
