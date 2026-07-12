@@ -9,8 +9,8 @@ Branch: `book-designer/p1-editor-extensions` (off the P0 PR branch). PLAN §6 wo
 | Chunk | Scope | Status |
 |---|---|---|
 | 1 | **A: plumbing** — extension registry (public `extensions` mount option), enable `liga/calt/rlig` ligatures for body text (currently Qur'an-only, `DocumentEditor.vue:610-618`), public `getHTML()` on the editor handle, backend-free demo harness page (`spikes/p1-demo/`) | ✅ done (Codex impl; build + browser-verified: demo mounts backend-free via `initialContent`, custom extension registers, ligatures active. Tradeoff: ligatures now on for ALL editor text incl. Latin — rescope if Latin cursor quirks appear) |
-| 2 | **B: block nodes** — footnote (std element, NOT `<fn>`; Arabic-Indic `(١)` markers), poetryVerse (columns + interleaved variants), sectionEnd ornament, heading `kind` attr (kitab/bab/fasl/masala), Unicode-14 honorific set (U+FD40–FD4F); webfont/SVG-fallback asset sourcing deferred to chunk 4 | ⏳ in progress |
-| 3 | **D: input layer** — keymap service (Ithraa defaults Alt+X/Z/Q/W/M/0/9/K/L, `event.code`-matched, MUST accept `Numpad0-9` AND `Digit0-9`, user-remappable) + abbreviation expander (17 Ithraa entries: ص1، ر1، رح1، بسم1…) | ☐ |
+| 2 | **B: block nodes** — footnote (std element, NOT `<fn>`; Arabic-Indic `(١)` markers), poetryVerse (columns + interleaved variants), sectionEnd ornament, heading `kind` attr (kitab/bab/fasl/masala), Unicode-14 honorific set (U+FD40–FD4F); webfont/SVG-fallback asset sourcing deferred to chunk 4 | ✅ done (Codex impl; build + browser-verified: all nodes render, honorifics stored as real Unicode — U+FD40–FD4F mappings independently checked correct. TODO left in code: عز وجل/سبحانه وتعالى/جل وعلا/رحمها/رحمهما have no single Unicode codepoint — need multi-char or SVG treatment in chunk 4) |
+| 3 | **D: input layer** — keymap service (Ithraa defaults Alt+X/Z/Q/W/M/0/9/K/L, `event.code`-matched, MUST accept `Numpad0-9` AND `Digit0-9`, user-remappable) + abbreviation expander (17 Ithraa entries: ص1، ر1، رح1، بسم1…) | ⏳ in progress |
 | 4 | **B leftovers** — marginNote node, titlePage/fiqhIssue slash-menu templates | ☐ |
 
 ## P0 — Spikes (go/no-go tests) ✅ COMPLETE

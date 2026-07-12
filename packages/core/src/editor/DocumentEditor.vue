@@ -32,6 +32,10 @@ import { HadithNode } from "./extensions/HadithNode";
 import { SlashCommand } from "./extensions/SlashCommand";
 import { Honorific } from "./extensions/Honorific";
 import { ImageNode } from "./extensions/ImageNode";
+import { Footnote } from "./extensions/Footnote";
+import { PoetryVerse, PoetryLine, PoetryHemistich } from "./extensions/PoetryVerse";
+import { SectionEnd } from "./extensions/SectionEnd";
+import { BookHeading } from "./extensions/BookHeading";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -216,7 +220,8 @@ const editor = useEditor({
     failedToLoad.value = true;
   },
   extensions: [
-    StarterKit.configure({}),
+    StarterKit.configure({ heading: false }),
+    BookHeading,
     TextDirection.configure({
       types: ["heading", "paragraph", "listItem", "bulletItem"],
     }),
@@ -260,6 +265,11 @@ const editor = useEditor({
     QuranMushaf,
     HadithNode,
     Honorific,
+    Footnote,
+    PoetryHemistich,
+    PoetryLine,
+    PoetryVerse,
+    SectionEnd,
     ImageNode.configure({
       documentId: props.documentId,
       translate: (key: string) => t(key),
@@ -294,6 +304,27 @@ const editor = useEditor({
             .focus()
             .insertContent({ type: "honorific", attrs: { type: commandId } })
             .run();
+        } else if (commandId === "footnote-parens" || commandId === "footnote-brackets") {
+          editor.chain().focus().insertContent({
+            type: "footnoteRef",
+            attrs: {
+              id: crypto.randomUUID(),
+              content: "",
+              bracketStyle: commandId === "footnote-brackets" ? "brackets" : "parens",
+            },
+          }).run();
+        } else if (commandId === "poetry-columns" || commandId === "poetry-interleaved") {
+          const hemistich = () => ({ type: "poetryHemistich" });
+          editor.chain().focus().insertContent({
+            type: "poetryVerse",
+            attrs: { layout: commandId === "poetry-interleaved" ? "interleaved" : "columns" },
+            content: [{ type: "poetryLine", content: [hemistich(), hemistich()] }],
+          }).run();
+        } else if (commandId === "section-end") {
+          editor.chain().focus().insertContent({ type: "sectionEnd" }).run();
+        } else if (commandId.startsWith("heading-")) {
+          const kind = commandId.slice("heading-".length);
+          editor.chain().focus().setHeading({ level: 1 }).updateAttributes("heading", { kind }).run();
         }
       },
     }),

@@ -8,11 +8,13 @@
     <style>
       body { margin: 0; font-family: sans-serif; }
       #status { padding: 0.75rem 1rem; background: #fff3cd; }
-      #editor { height: calc(100vh - 3rem); }
+      #usage { padding: 0.5rem 1rem; background: #eef6ff; font-size: 0.9rem; }
+      #editor { height: calc(100vh - 6rem); }
     </style>
   </head>
   <body>
     <div id="status">Custom extension has not loaded.</div>
+    <div id="usage">Try the slash menu for footnotes, both poetry layouts, section ends, and كتاب/باب/فصل/مسألة headings. Click a footnote number to edit its text; Enter adds a poetry line.</div>
     <div id="editor"></div>
     <script src="../../packages/core/dist/qirtaas.umd.js"></script>
     <script type="module">
@@ -32,8 +34,25 @@
         initialContent: {
           type: "doc",
           content: [
-            { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Islamic Book Designer" }] },
-            { type: "paragraph", attrs: { dir: "rtl", textAlign: "right" }, content: [{ type: "text", text: "السلام عليكم ﷺ" }] },
+            { type: "heading", attrs: { level: 1, kind: "kitab" }, content: [{ type: "text", text: "كتاب العلم" }] },
+            { type: "paragraph", attrs: { dir: "rtl", textAlign: "right" }, content: [
+              { type: "text", text: "قال النبي " }, { type: "honorific", attrs: { type: "saw" } },
+              { type: "text", text: " وذكر الإمام " }, { type: "honorific", attrs: { type: "rahimahu" } },
+              { type: "text", text: " هذا في المتن" },
+              { type: "footnoteRef", attrs: { id: "demo-footnote", content: "نص الحاشية التجريبية", bracketStyle: "parens" } },
+              { type: "text", text: ". " }, { type: "honorific", attrs: { type: "radiAnhu" } },
+              { type: "text", text: " " }, { type: "honorific", attrs: { type: "bismillah" } },
+            ] },
+            { type: "heading", attrs: { level: 2, kind: "bab" }, content: [{ type: "text", text: "باب الشعر" }] },
+            { type: "poetryVerse", attrs: { layout: "columns" }, content: [
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "ألا كل شيء ما خلا الله باطل" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "وكل نعيم لا محالة زائل" }] }] },
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "وكل ابن أنثى لو تطاول عمره" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "إلى الغاية القصوى فللقبر آيل" }] }] },
+            ] },
+            { type: "poetryVerse", attrs: { layout: "interleaved" }, content: [
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "العلم يرفع بيتا لا عماد له" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "والجهل يهدم بيت العز والكرم" }] }] },
+              { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "فاطلب لنفسك علما تستضيء به" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "فالعلم نور وفي الجهل الظلام" }] }] },
+            ] },
+            { type: "sectionEnd", attrs: { variant: "flower-row" } },
           ],
         },
         autosave: { enabled: false },
