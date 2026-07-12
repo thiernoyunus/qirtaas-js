@@ -48,7 +48,7 @@ function save(event: Event) {
 <template>
   <NodeViewWrapper as="span" class="footnote-ref" contenteditable="false">
     <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" @click="open = !open">{{ marker }}</button>
-    <span v-else>{{ props.node.attrs.content }}</span>
+    <span v-else class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`">{{ marker }}</span>
     <span v-if="isEditable && open" class="footnote-popover" role="dialog" @keydown.stop @mousedown.stop>
       <span ref="editorEl" class="footnote-editor" contenteditable="true" dir="auto" @input="save" @blur="save"></span>
     </span>

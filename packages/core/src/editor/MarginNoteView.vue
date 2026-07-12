@@ -40,7 +40,7 @@ function save(event: Event) {
 <template>
   <NodeViewWrapper as="span" class="margin-note" contenteditable="false">
     <button v-if="isEditable" type="button" class="margin-note-marker" :aria-label="`Margin note, ${props.node.attrs.side} side`" @click="open = !open">هـ</button>
-    <span v-else>{{ props.node.attrs.text }}</span>
+    <span v-else class="margin-note-marker" :aria-label="`Margin note, ${props.node.attrs.side} side`">هـ</span>
     <span v-if="isEditable && open" class="margin-note-popover" role="dialog" @keydown.stop @mousedown.stop>
       <span ref="editorEl" class="margin-note-editor" contenteditable="true" dir="auto" @input="save" @blur="save"></span>
     </span>
