@@ -2,7 +2,18 @@
 
 > Pick-up file. If a session dies, read [PLAN.md](./PLAN.md) then this file, and continue from the first unchecked item. Keep this file updated after every work chunk.
 
-## Current phase: P0 — Spikes (go/no-go tests)
+## Current phase: P1 — Author like Ithraa (Word-template parity in the browser)
+
+Branch: `book-designer/p1-editor-extensions` (off the P0 PR branch). PLAN §6 workstreams A, B, D, split into sequential chunks — each chunk = one delegated agent, build must pass, committed before the next starts (all touch `DocumentEditor.vue` registration, so no parallel chunks).
+
+| Chunk | Scope | Status |
+|---|---|---|
+| 1 | **A: plumbing** — extension registry (public `extensions` mount option), enable `liga/calt/rlig` ligatures for body text (currently Qur'an-only, `DocumentEditor.vue:610-618`), public `getHTML()` on the editor handle, backend-free demo harness page (`spikes/p1-demo/`) | ⏳ in progress |
+| 2 | **B: block nodes** — footnote (std element, NOT `<fn>`; Arabic-Indic `(١)` markers), poetryVerse (columns + interleaved variants), sectionEnd ornament, heading `kind` attr (kitab/bab/fasl/masala), Unicode-14 honorific set (U+FD40–FD4F) w/ webfont+SVG fallback | ☐ |
+| 3 | **D: input layer** — keymap service (Ithraa defaults Alt+X/Z/Q/W/M/0/9/K/L, `event.code`-matched, MUST accept `Numpad0-9` AND `Digit0-9`, user-remappable) + abbreviation expander (17 Ithraa entries: ص1، ر1، رح1، بسم1…) | ☐ |
+| 4 | **B leftovers** — marginNote node, titlePage/fiqhIssue slash-menu templates | ☐ |
+
+## P0 — Spikes (go/no-go tests) ✅ COMPLETE
 
 | # | Spike | Status | Artifacts |
 |---|---|---|---|
