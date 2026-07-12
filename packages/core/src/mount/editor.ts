@@ -60,11 +60,13 @@ export function mountEditor(
   );
   setTrackEvent(options.onEvent ?? (() => {}));
 
-  // theme + editable change after mount, so they're the reactive root state.
-  // Everything else is static mount config — changing it means re-mounting.
+  // theme + editable + pageMode change after mount, so they're the reactive
+  // root state. Everything else is static mount config — changing it means
+  // re-mounting.
   const liveState = reactive({
     theme: options.theme ?? "light",
     editable: !options.readOnly,
+    pageMode: options.pageMode ?? "notes",
   });
 
   // Scoped overlay root for dialogs/menus; theme-synced (see setTheme below).
@@ -88,6 +90,7 @@ export function mountEditor(
         abbreviations: options.abbreviations,
         editable: liveState.editable,
         theme: liveState.theme,
+        pageMode: liveState.pageMode,
         autofocus: options.autofocus ?? false,
         autosaveEnabled: options.autosave?.enabled ?? true,
         autosaveDebounceMs: options.autosave?.debounceMs ?? 1500,
@@ -125,6 +128,9 @@ export function mountEditor(
     setTheme: (theme) => {
       liveState.theme = theme;
       setOverlayDark(theme === "dark");
+    },
+    setPageMode: (mode) => {
+      liveState.pageMode = mode;
     },
     destroy: () => {
       app.unmount();

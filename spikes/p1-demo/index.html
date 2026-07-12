@@ -16,6 +16,11 @@
   <body>
     <div id="status">Custom extension has not loaded.</div>
     <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+K/L margin notes · Alt+M ornament · /صفحة عنوان and /عناصر المسألة الفقهية templates · عز، سبح، جل، رح2، رح11 then Tab/F3 · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
+    <div id="modebar" style="padding:0.5rem 1rem;background:#f3f3f3;border-bottom:1px solid #ddd;">
+      Mode: <button id="mode-notes" type="button">Notes (scrolling)</button>
+      <button id="mode-book" type="button">Book (real page)</button>
+      <span style="color:#666;font-size:0.85rem;">— Book mode shows your writing on a real page.</span>
+    </div>
     <div id="editor"></div>
     <script src="../../packages/core/dist/qirtaas.umd.js"></script>
     <script type="module">
@@ -59,10 +64,14 @@
           ],
         },
         autosave: { enabled: false },
+        pageMode: "book",
         extensions: [registryProof],
         keymap: { "Alt+KeyF": { type: "insertText", text: "★" } },
         abbreviations: { demo1: "Custom expansion works" },
       });
+
+      document.querySelector("#mode-notes").addEventListener("click", () => window.editor.setPageMode("notes"));
+      document.querySelector("#mode-book").addEventListener("click", () => window.editor.setPageMode("book"));
     </script>
   </body>
 </html>

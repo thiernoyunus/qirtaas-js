@@ -12,6 +12,7 @@ import type {
   Json,
   Locale,
   Theme,
+  PageMode,
   SaveState,
   ErrorCode,
 } from "@qirtaas/core";
@@ -23,6 +24,7 @@ const props = defineProps<{
   getToken: NonNullable<QirtaasClientOptions["getToken"]>;
   locale?: Locale;
   theme?: Theme;
+  pageMode?: PageMode;
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -52,6 +54,7 @@ onMounted(() => {
     initialContent: props.initialContent ?? null,
     locale: props.locale,
     theme: props.theme,
+    pageMode: props.pageMode,
     readOnly: props.readOnly,
     autofocus: props.autofocus,
     autosave: props.autosave,

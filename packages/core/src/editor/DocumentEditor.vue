@@ -67,8 +67,9 @@ const props = withDefaults(
     extensions?: AnyExtension[];
     keymap?: Record<string, KeymapAction | false>;
     abbreviations?: Record<string, string>;
+    pageMode?: "notes" | "book";
   }>(),
-  { editable: true, autofocus: false, documentId: undefined }
+  { editable: true, autofocus: false, documentId: undefined, pageMode: "notes" }
 );
 
 const emit = defineEmits<{
@@ -523,7 +524,10 @@ function insertQuranMushaf(data: {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1">
+  <div
+    class="flex flex-col flex-1"
+    :class="{ 'qirtaas-page-mode-book': pageMode === 'book' }"
+  >
     <div
       v-if="failedToLoad"
       class="flex flex-col items-center justify-center flex-1 gap-4 text-center px-6 py-20"
@@ -668,6 +672,43 @@ function insertQuranMushaf(data: {
   font-family: inherit;
   line-height: 1.8;
   color: var(--color-ink);
+}
+
+/* Book mode page surface (P2 Layer 1, docs/book-designer/PLAN.md §5b).
+   CSS-driven only — no pagination engine, no page-splitting yet (later
+   layers). The editor content becomes a centered A4-proportioned page
+   (21cm x 29.7cm, 2.5cm margins, matching the P0 spike) sitting on a gray
+   backdrop, fully editable in place. `notes` mode (default, no class) is
+   untouched. Real physical units (cm) keep the page true-to-size regardless
+   of the browser's assumed DPI. */
+.qirtaas-page-mode-book {
+  background: #e6e6e6;
+  padding: 2.5rem 1rem;
+}
+
+.qirtaas-dark .qirtaas-page-mode-book {
+  /* Backdrop follows the dark theme; the page itself stays paper-white
+     (like Word/Docs dark mode) since body text color below is fixed dark
+     for legibility on white. */
+  background: #29292c;
+}
+
+.qirtaas-page-mode-book .tiptap {
+  box-sizing: border-box;
+  width: 21cm;
+  max-width: 100%;
+  min-height: 29.7cm;
+  margin: 0 auto;
+  padding: 2.5cm;
+  background: #ffffff;
+  color: #1c1c1c;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+.qirtaas-page-mode-book .tiptap .is-empty::before {
+  color: #94a3b8;
 }
 
 /* ProseMirror disables ligatures globally, which breaks Arabic shaping. */
