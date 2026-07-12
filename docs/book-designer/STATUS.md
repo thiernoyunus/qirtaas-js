@@ -11,7 +11,7 @@ Branch: `book-designer/p2-book-mode` (off the P1 branch). **Product decision (20
 Build order (each layer editable + reliable before the next; reflow-on-pause, NOT per-keystroke — the fragile "live pagination" path is explicitly rejected):
 | Layer | Scope | Status |
 |---|---|---|
-| 1 | Notes/Book mode selection (public `pageMode: 'notes' \| 'book'` mount option + runtime setter) + book-mode **page surface**: editor content on an A4 page (white page, real margins, gray backdrop, subtle shadow), fully editable in place. CSS-driven; NO pagination engine yet. Demo gets a mode switch. | ⏳ in progress |
+| 1 | Notes/Book mode selection (public `pageMode: 'notes' \| 'book'` mount option + runtime setter) + book-mode **page surface**: editor content on an A4 page (white page, real margins, gray backdrop, subtle shadow), fully editable in place. CSS-driven; NO pagination engine yet. Demo gets a mode switch. | ✅ code done (commit 5580e41; build ships A4 CSS, wrappers forward pageMode, demo has Notes/Book toggle defaulting to book). ⚠️ VISUAL REVIEW PENDING — Sonnet agent hit a session limit mid-run, orchestrator finished wrappers+demo; browser tooling was unavailable this session so no screenshot taken. User to reload `spikes/p1-demo/` and confirm the page surface looks right. |
 | 2 | Real page-break divisions (see page 1 end / page 2 begin) — measure-and-break or Paged.js-on-pause | ☐ |
 | 3 | Editable running header/footer + page numbers (set once, repeat every page — click top/bottom to edit) | ☐ |
 | 4 | Footnotes pinned to bottom of their page (Paged.js `float:footnote`, proven in P0) | ☐ |
