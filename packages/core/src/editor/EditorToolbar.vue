@@ -8,6 +8,7 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Popover from "primevue/popover";
 import { Search, ListCollapse, ListOrdered, Highlighter } from "lucide-vue-next";
+import { safeUUID } from "./uuid";
 
 const props = defineProps<{ editor: Editor | undefined }>();
 const emit = defineEmits<{
@@ -119,7 +120,7 @@ function insertHonorific(type: string) {
 
 function insertBookNode(type: "footnoteRef" | "poetryVerse" | "sectionEnd", variant?: string) {
   const content = type === "footnoteRef"
-    ? { type, attrs: { id: crypto.randomUUID(), content: "", bracketStyle: variant ?? "parens" } }
+    ? { type, attrs: { id: safeUUID(), content: "", bracketStyle: variant ?? "parens" } }
     : type === "poetryVerse"
       ? { type, attrs: { layout: variant ?? "columns" }, content: [{ type: "poetryLine", content: [{ type: "poetryHemistich" }, { type: "poetryHemistich" }] }] }
       : { type };

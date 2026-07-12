@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { NodeViewWrapper } from "@tiptap/vue-3";
+import type { Editor } from "@tiptap/core";
 import type { MarginNoteSide } from "./extensions/MarginNote";
 
 const props = defineProps<{
   node: { attrs: { side: MarginNoteSide; text: string } };
+  editor: Editor;
   updateAttributes: (attrs: Record<string, unknown>) => void;
 }>();
 
@@ -17,8 +19,9 @@ function save(event: Event) {
 
 <template>
   <NodeViewWrapper as="span" class="margin-note" contenteditable="false">
-    <button type="button" class="margin-note-marker" :aria-label="`Margin note, ${props.node.attrs.side} side`" @click="open = !open">هـ</button>
-    <span v-if="open" class="margin-note-popover" role="dialog">
+    <button v-if="props.editor.isEditable" type="button" class="margin-note-marker" :aria-label="`Margin note, ${props.node.attrs.side} side`" @click="open = !open">هـ</button>
+    <span v-else>{{ props.node.attrs.text }}</span>
+    <span v-if="props.editor.isEditable && open" class="margin-note-popover" role="dialog" @keydown.stop @mousedown.stop>
       <span class="margin-note-editor" contenteditable="true" dir="auto" @blur="save">{{ props.node.attrs.text }}</span>
     </span>
   </NodeViewWrapper>

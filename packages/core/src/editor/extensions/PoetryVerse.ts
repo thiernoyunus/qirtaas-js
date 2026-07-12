@@ -63,9 +63,15 @@ export const PoetryVerse = Node.create({
         const from = $from.before(lineDepth);
         const to = $from.after(lineDepth);
         const verse = $from.node(verseDepth);
-        const tr = verse.childCount === 1
-          ? state.tr.delete($from.before(verseDepth), $from.after(verseDepth))
-          : state.tr.delete(from, to);
+        let tr = state.tr;
+        if (verse.childCount === 1) {
+          const verseBefore = $from.before(verseDepth);
+          tr = tr.delete(verseBefore, $from.after(verseDepth));
+          tr = tr.setSelection(TextSelection.near(tr.doc.resolve(verseBefore)));
+        } else {
+          tr = tr.delete(from, to);
+          tr = tr.setSelection(TextSelection.near(tr.doc.resolve(from)));
+        }
         dispatch?.(tr.scrollIntoView());
         return true;
       }),

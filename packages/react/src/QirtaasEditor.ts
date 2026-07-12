@@ -32,6 +32,8 @@ export interface QirtaasEditorProps {
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
   extensions?: EditorMountOptions["extensions"];
+  keymap?: EditorMountOptions["keymap"];
+  abbreviations?: EditorMountOptions["abbreviations"];
   onReady?: () => void;
   onChange?: (json: Json) => void;
   onSaveStateChange?: (state: SaveState) => void;
@@ -73,6 +75,8 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         autofocus: p.autofocus,
         autosave: p.autosave,
         extensions: p.extensions,
+        keymap: p.keymap,
+        abbreviations: p.abbreviations,
         onReady: () => latest.current.onReady?.(),
         onChange: (json) => latest.current.onChange?.(json),
         onSaveStateChange: (state) => latest.current.onSaveStateChange?.(state),

@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "@tiptap/pm/state";
+import { safeUUID } from "../uuid";
 
 export type KeymapAction =
   | { type: "footnote"; bracketStyle: "parens" | "brackets" }
@@ -55,7 +56,7 @@ export const BookKeymap = Extension.create<BookKeymapOptions>({
           if (action.type === "footnote") {
             return chain.insertContent({
               type: "footnoteRef",
-              attrs: { id: crypto.randomUUID(), content: "", bracketStyle: action.bracketStyle },
+              attrs: { id: safeUUID(), content: "", bracketStyle: action.bracketStyle },
             }).run();
           }
           if (action.type === "poetry") return chain.insertContent(poetryVerse(action.layout)).run();

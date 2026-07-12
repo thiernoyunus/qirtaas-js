@@ -40,11 +40,18 @@ export const AbbrevExpander = Extension.create<AbbrevExpanderOptions>({
           const honorific = view.state.schema.nodes.honorific;
           const honorificType = expansion as HonorificType;
           const isHonorific = honorific && expansion in HONORIFICS;
-          const replacement = isHonorific
-            ? honorific.create({ type: honorificType })
-            : view.state.schema.text(expansion);
           event.preventDefault();
-          view.dispatch(view.state.tr.replaceWith($from.pos - abbreviation.length, $from.pos, replacement).scrollIntoView());
+          const from = $from.pos - abbreviation.length;
+          const tr = expansion === ""
+            ? view.state.tr.delete(from, $from.pos)
+            : view.state.tr.replaceWith(
+                from,
+                $from.pos,
+                isHonorific
+                  ? honorific.create({ type: honorificType })
+                  : view.state.schema.text(expansion),
+              );
+          view.dispatch(tr.scrollIntoView());
           return true;
         },
       },

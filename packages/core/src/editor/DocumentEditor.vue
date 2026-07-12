@@ -51,6 +51,7 @@ import { useVerseDetail } from "@qirtaas/core/composables/useVerseDetail";
 import { useHadithDetail } from "@qirtaas/core/composables/useHadithDetail";
 import { useIsMobile } from "@qirtaas/core/composables/useIsMobile";
 import { useToast } from "primevue/usetoast";
+import { safeUUID } from "./uuid";
 
 const verseDetail = useVerseDetail();
 const hadithDetail = useHadithDetail();
@@ -316,7 +317,7 @@ const editor = useEditor({
           editor.chain().focus().insertContent({
             type: "footnoteRef",
             attrs: {
-              id: crypto.randomUUID(),
+              id: safeUUID(),
               content: "",
               bracketStyle: commandId === "footnote-brackets" ? "brackets" : "parens",
             },
@@ -670,7 +671,8 @@ function insertQuranMushaf(data: {
 }
 
 /* ProseMirror disables ligatures globally, which breaks Arabic shaping. */
-.qirtaas-scope .tiptap {
+.qirtaas-scope .tiptap[dir="rtl"],
+.qirtaas-scope .tiptap [dir="rtl"] {
   font-variant-ligatures: normal;
   -webkit-font-variant-ligatures: normal;
   font-feature-settings: "liga", "calt", "rlig";
