@@ -37,6 +37,8 @@ Branch: `book-designer/p1-editor-extensions` (off the P0 PR branch). PLAN §6 wo
 
 Next: **P2 — book layout engine** (`@qirtaas/book-layout` package: theme JSON spec, 5 presets, Paged.js pagination with explicit section breaks, TOC, live preview — PLAN §6 Workstream C) plus the honorific webfont asset pass.
 
+**PR #2 second review pass (2026-07-12):** after the chunk-5 bug fixes were pushed, bots re-reviewed and found 3 more real issues, all fixed: (1) footnotes loaded from existing content (not typed) kept wrong/default numbers until the first edit — fixed by renumbering once on editor-view init, not just on doc-change transactions; verified live (two un-numbered footnotes loaded as `[1,2]` with zero edits, confirmed against the pre-fix bug of `[1,1]`); (2) footnote/margin-note popovers didn't react to `setEditable()` being called after mount (stale `isEditable` since NodeViews render outside the normal Vue reactivity tree) — fixed by subscribing to the TipTap editor's `update` event, confirmed against installed library source that `setEditable()` does emit it; (3) `tiptap-pagination-plus` was miscategorized as a runtime `dependency` when every other bundled library in this package (Vue, all of TipTap, etc.) is a `devDependency` since Vite inlines everything into the shipped bundle — moved to match convention.
+
 ## P0 — Spikes (go/no-go tests) ✅ COMPLETE
 
 | # | Spike | Status | Artifacts |
