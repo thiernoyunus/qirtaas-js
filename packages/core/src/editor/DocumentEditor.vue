@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
+import type { AnyExtension } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { SearchReplace } from "./extensions/SearchReplace";
 import StarterKit from "@tiptap/starter-kit";
@@ -55,6 +56,7 @@ const props = withDefaults(
     editable?: boolean;
     autofocus?: boolean;
     documentId?: string;
+    extensions?: AnyExtension[];
   }>(),
   { editable: true, autofocus: false, documentId: undefined }
 );
@@ -295,6 +297,7 @@ const editor = useEditor({
         }
       },
     }),
+    ...(props.extensions ?? []),
   ],
   editable: props.editable,
   editorProps: {
@@ -607,11 +610,8 @@ function insertQuranMushaf(data: {
   color: var(--color-ink);
 }
 
-/* ProseMirror disables ligatures globally to avoid Latin cursor-positioning
-   bugs, which also kills Arabic shaping (lam-alif renders as isolated ل + ا).
-   Re-enable on Arabic font runs. */
-.tiptap .font-quran,
-.tiptap .font-quran-uthmani {
+/* ProseMirror disables ligatures globally, which breaks Arabic shaping. */
+.qirtaas-scope .tiptap {
   font-variant-ligatures: normal;
   -webkit-font-variant-ligatures: normal;
   font-feature-settings: "liga", "calt", "rlig";

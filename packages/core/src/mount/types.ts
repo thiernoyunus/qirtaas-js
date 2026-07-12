@@ -1,4 +1,6 @@
 // Public option/handle types for the embeddable editor + renderer mount APIs.
+import type { AnyExtension } from "@tiptap/core";
+
 export type Json = Record<string, unknown>;
 
 export type Locale = "en" | "ar";
@@ -27,6 +29,8 @@ export interface EditorMountOptions {
   documentId?: string;
   /** Initial content when not loading from a documentId (in-memory editing). */
   initialContent?: Json | null;
+  /** TipTap extensions appended after Qirtaas's built-in extensions. */
+  extensions?: AnyExtension[];
   locale?: Locale;
   theme?: Theme;
   /** Start read-only. Editing can be toggled later via setEditable(). */
@@ -52,6 +56,8 @@ export interface EditorMountOptions {
 export interface EditorInstance {
   /** Current editor content (TipTap JSON). */
   getJSON(): Json | null;
+  /** Current editor content as HTML. */
+  getHTML(): string;
   /**
    * Force an immediate save of any pending changes, awaiting an in-flight save
    * first. Rejects if the save fails (e.g. offline); the failure is also

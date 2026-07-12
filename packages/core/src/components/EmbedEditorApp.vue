@@ -17,11 +17,13 @@ import { QirtaasHttpError } from "../services/fetchChannel";
 import { docIsEmpty } from "../editor/docUtils";
 import { useDocumentAutosave } from "../composables/useDocumentAutosave";
 import type { ErrorCode, Json, SaveState } from "../mount/types";
+import type { AnyExtension } from "@tiptap/core";
 
 const props = withDefaults(
   defineProps<{
     documentId?: string;
     initialContent?: Json | null;
+    extensions?: AnyExtension[];
     editable?: boolean;
     autofocus?: boolean;
     theme?: "light" | "dark";
@@ -176,6 +178,7 @@ function onContentUpdate(json: Json) {
 
 defineExpose({
   getJSON: () => content.value,
+  getHTML: () => editorRef.value?.editor?.getHTML() ?? "",
   save: autosave.saveNow,
   setEditable: (editable: boolean) =>
     editorRef.value?.editor?.setEditable(editable),
@@ -225,6 +228,7 @@ defineExpose({
         <DocumentEditor
           ref="editorRef"
           :model-value="content"
+          :extensions="extensions"
           :editable="editable && !loadFailed"
           :autofocus="autofocus"
           :document-id="docId ?? undefined"

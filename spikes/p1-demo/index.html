@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Qirtaas Phase 1 demo</title>
+    <link rel="stylesheet" href="../../packages/core/dist/qirtaas.css" />
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      #status { padding: 0.75rem 1rem; background: #fff3cd; }
+      #editor { height: calc(100vh - 3rem); }
+    </style>
+  </head>
+  <body>
+    <div id="status">Custom extension has not loaded.</div>
+    <div id="editor"></div>
+    <script src="../../packages/core/dist/qirtaas.umd.js"></script>
+    <script type="module">
+      import { Extension } from "https://esm.sh/@tiptap/core@3.20.4";
+
+      const registryProof = Extension.create({
+        name: "registryProof",
+        onCreate() {
+          const status = document.querySelector("#status");
+          status.textContent = "Custom extension loaded successfully.";
+          status.style.background = "#d1e7dd";
+        },
+      });
+
+      const client = Qirtaas.createQirtaasClient({ getToken: () => "local-demo" });
+      window.editor = client.mountEditor("#editor", {
+        initialContent: {
+          type: "doc",
+          content: [
+            { type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: "Islamic Book Designer" }] },
+            { type: "paragraph", attrs: { dir: "rtl", textAlign: "right" }, content: [{ type: "text", text: "السلام عليكم ﷺ" }] },
+          ],
+        },
+        autosave: { enabled: false },
+        extensions: [registryProof],
+      });
+    </script>
+  </body>
+</html>
