@@ -232,6 +232,7 @@ defineExpose({
       <div class="flex-1 min-h-0 min-w-0 overflow-y-auto relative" data-editor-scroll>
         <DocumentEditor
           ref="editorRef"
+          :key="pageMode"
           :model-value="content"
           :extensions="extensions"
           :keymap="keymap"

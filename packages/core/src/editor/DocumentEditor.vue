@@ -39,6 +39,8 @@ import { MarginNote } from "./extensions/MarginNote";
 import { BookHeading } from "./extensions/BookHeading";
 import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
 import { AbbrevExpander } from "./extensions/AbbrevExpander";
+import { PaginationPlus } from "tiptap-pagination-plus";
+import { BOOK_PAGE_PX } from "./bookPage";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -280,6 +282,41 @@ const editor = useEditor({
     MarginNote,
     BookKeymap.configure({ bindings: props.keymap }),
     AbbrevExpander.configure({ abbreviations: props.abbreviations }),
+    // Book mode only (P2 Layer 2). Not reactive to a live pageMode switch —
+    // `useEditor()` builds this list once at mount, so EmbedEditorApp.vue
+    // remounts DocumentEditor (`:key="pageMode"`) when the mode changes. That
+    // also means notes mode never pays this extension's onCreate side effects
+    // (it forces page width/margins/border onto the ProseMirror DOM), since
+    // it's simply absent from the list rather than toggled off.
+    ...(props.pageMode === "book"
+      ? [
+          PaginationPlus.configure({
+            pageHeight: BOOK_PAGE_PX.height,
+            pageWidth: BOOK_PAGE_PX.width,
+            marginTop: BOOK_PAGE_PX.margin,
+            marginBottom: BOOK_PAGE_PX.margin,
+            marginLeft: BOOK_PAGE_PX.margin,
+            marginRight: BOOK_PAGE_PX.margin,
+            contentMarginTop: 0,
+            contentMarginBottom: 0,
+            // Layer 3 (running header/footer) owns real header/footer content;
+            // keep the library's built-in one blank so nothing shows yet.
+            headerLeft: "",
+            headerRight: "",
+            footerLeft: "",
+            footerRight: "",
+            pageGap: 32,
+            pageGapBorderColor: "var(--qirtaas-book-gap-bg)",
+            // Gap shows the book-mode gray backdrop through. A CSS var (not a
+            // hardcoded color) so it tracks live theme switching — the
+            // extension's config is captured once at editor creation, but a
+            // var() reference keeps resolving against whatever the current
+            // .qirtaas-dark state is. Defined alongside the other book-mode
+            // page-surface rules below.
+            pageBreakBackground: "var(--qirtaas-book-gap-bg)",
+          }),
+        ]
+      : []),
     ImageNode.configure({
       documentId: props.documentId,
       translate: (key: string) => t(key),
@@ -675,15 +712,25 @@ function insertQuranMushaf(data: {
 }
 
 /* Book mode page surface (P2 Layer 1, docs/book-designer/PLAN.md §5b).
-   CSS-driven only — no pagination engine, no page-splitting yet (later
-   layers). The editor content becomes a centered A4-proportioned page
-   (21cm x 29.7cm, 2.5cm margins, matching the P0 spike) sitting on a gray
-   backdrop, fully editable in place. `notes` mode (default, no class) is
-   untouched. Real physical units (cm) keep the page true-to-size regardless
-   of the browser's assumed DPI. */
+   The editor content becomes a centered A4-proportioned page (21cm x
+   29.7cm, 2.5cm margins, matching the P0 spike) sitting on a gray backdrop,
+   fully editable in place. `notes` mode (default, no class) is untouched.
+   Real physical units (cm) keep the page true-to-size regardless of the
+   browser's assumed DPI for the initial paint; once the pagination plugin
+   (Layer 2, tiptap-pagination-plus — see PaginationPlus.configure() above)
+   mounts, it takes over sizing with matching pixel values (BOOK_PAGE_PX in
+   ./bookPage.ts) via inline styles on this same element, which win over the
+   cm-based rules below by CSS precedence — the two are kept numerically in
+   sync so there's no visible seam at handoff. */
 .qirtaas-page-mode-book {
   background: #e6e6e6;
   padding: 2.5rem 1rem;
+  /* Read by PaginationPlus.configure({ pageBreakBackground, pageGapBorderColor })
+     so the inter-page gap shows this backdrop through — that's what makes
+     discrete pages ("page 1 / gap / page 2") visible instead of one
+     continuous sheet. Same var name light + dark so the gap always matches
+     the current backdrop. */
+  --qirtaas-book-gap-bg: #e6e6e6;
 }
 
 .qirtaas-dark .qirtaas-page-mode-book {
@@ -691,6 +738,7 @@ function insertQuranMushaf(data: {
      (like Word/Docs dark mode) since body text color below is fixed dark
      for legibility on white. */
   background: #29292c;
+  --qirtaas-book-gap-bg: #29292c;
 }
 
 .qirtaas-page-mode-book .tiptap {
@@ -705,6 +753,16 @@ function insertQuranMushaf(data: {
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+/* tiptap-pagination-plus (Layer 2) forces a 1px outline around the whole
+   multi-page stack via an inline style (`view.dom.style.border`); it isn't
+   configurable, so override it here instead — the surrounding box-shadow
+   above already reads as the page edge, a second contrasting outline just
+   looks like a stray line. `!important` is required to beat the inline
+   style set on the same element. */
+.qirtaas-page-mode-book .tiptap.rm-with-pagination {
+  border: none !important;
 }
 
 .qirtaas-page-mode-book .tiptap .is-empty::before {
