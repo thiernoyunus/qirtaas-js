@@ -8,6 +8,7 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Popover from "primevue/popover";
 import { Search, ListCollapse, ListOrdered, Highlighter } from "lucide-vue-next";
+import { safeUUID } from "./uuid";
 
 const props = defineProps<{ editor: Editor | undefined }>();
 const emit = defineEmits<{
@@ -114,6 +115,16 @@ function insertHonorific(type: string) {
     .focus()
     .insertContent({ type: "honorific", attrs: { type } })
     .run();
+  insertPopover.value.hide();
+}
+
+function insertBookNode(type: "footnoteRef" | "poetryVerse" | "sectionEnd", variant?: string) {
+  const content = type === "footnoteRef"
+    ? { type, attrs: { id: safeUUID(), content: "", bracketStyle: variant ?? "parens" } }
+    : type === "poetryVerse"
+      ? { type, attrs: { layout: variant ?? "columns" }, content: [{ type: "poetryLine", content: [{ type: "poetryHemistich" }, { type: "poetryHemistich" }] }] }
+      : { type };
+  props.editor!.chain().focus().insertContent(content).run();
   insertPopover.value.hide();
 }
 
@@ -257,6 +268,15 @@ function removeLink() {
         >
           <i class="pi pi-pencil text-sm text-muted" />
           <span>{{ t("editor.insertSAW") }}</span>
+        </button>
+        <button class="flex items-center gap-2 w-full py-2 px-3 rounded-md text-sm text-start bg-transparent text-ink hover:bg-accent/10 hover:text-accent cursor-pointer border-none font-[inherit]" @click="insertBookNode('footnoteRef', 'parens')">
+          <i class="pi pi-bookmark text-sm text-muted" /><span>Footnote</span>
+        </button>
+        <button class="flex items-center gap-2 w-full py-2 px-3 rounded-md text-sm text-start bg-transparent text-ink hover:bg-accent/10 hover:text-accent cursor-pointer border-none font-[inherit]" @click="insertBookNode('poetryVerse', 'columns')">
+          <i class="pi pi-align-justify text-sm text-muted" /><span>Poetry</span>
+        </button>
+        <button class="flex items-center gap-2 w-full py-2 px-3 rounded-md text-sm text-start bg-transparent text-ink hover:bg-accent/10 hover:text-accent cursor-pointer border-none font-[inherit]" @click="insertBookNode('sectionEnd')">
+          <i class="pi pi-minus text-sm text-muted" /><span>Section end</span>
         </button>
       </div>
     </Popover>
@@ -455,6 +475,12 @@ function removeLink() {
             >H{{ level }}</span
           >
         </button>
+        <button
+          v-for="kind in ['kitab', 'bab', 'fasl', 'masala'] as const"
+          :key="kind"
+          class="flex items-center gap-2 w-full py-2 px-3 rounded-md text-start bg-transparent text-ink hover:bg-accent/10 hover:text-accent cursor-pointer border-none font-[inherit] capitalize"
+          @click="props.editor!.chain().focus().setHeading({ level: 1 }).updateAttributes('heading', { kind }).run(); headingPopover.hide();"
+        >{{ kind }}</button>
       </div>
     </Popover>
 

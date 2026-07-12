@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
+import type { AnyExtension } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { SearchReplace } from "./extensions/SearchReplace";
 import StarterKit from "@tiptap/starter-kit";
@@ -31,6 +32,13 @@ import { HadithNode } from "./extensions/HadithNode";
 import { SlashCommand } from "./extensions/SlashCommand";
 import { Honorific } from "./extensions/Honorific";
 import { ImageNode } from "./extensions/ImageNode";
+import { Footnote } from "./extensions/Footnote";
+import { PoetryVerse, PoetryLine, PoetryHemistich } from "./extensions/PoetryVerse";
+import { SectionEnd } from "./extensions/SectionEnd";
+import { MarginNote } from "./extensions/MarginNote";
+import { BookHeading } from "./extensions/BookHeading";
+import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
+import { AbbrevExpander } from "./extensions/AbbrevExpander";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -43,6 +51,7 @@ import { useVerseDetail } from "@qirtaas/core/composables/useVerseDetail";
 import { useHadithDetail } from "@qirtaas/core/composables/useHadithDetail";
 import { useIsMobile } from "@qirtaas/core/composables/useIsMobile";
 import { useToast } from "primevue/usetoast";
+import { safeUUID } from "./uuid";
 
 const verseDetail = useVerseDetail();
 const hadithDetail = useHadithDetail();
@@ -55,6 +64,9 @@ const props = withDefaults(
     editable?: boolean;
     autofocus?: boolean;
     documentId?: string;
+    extensions?: AnyExtension[];
+    keymap?: Record<string, KeymapAction | false>;
+    abbreviations?: Record<string, string>;
   }>(),
   { editable: true, autofocus: false, documentId: undefined }
 );
@@ -214,7 +226,8 @@ const editor = useEditor({
     failedToLoad.value = true;
   },
   extensions: [
-    StarterKit.configure({}),
+    StarterKit.configure({ heading: false }),
+    BookHeading,
     TextDirection.configure({
       types: ["heading", "paragraph", "listItem", "bulletItem"],
     }),
@@ -258,6 +271,14 @@ const editor = useEditor({
     QuranMushaf,
     HadithNode,
     Honorific,
+    Footnote,
+    PoetryHemistich,
+    PoetryLine,
+    PoetryVerse,
+    SectionEnd,
+    MarginNote,
+    BookKeymap.configure({ bindings: props.keymap }),
+    AbbrevExpander.configure({ abbreviations: props.abbreviations }),
     ImageNode.configure({
       documentId: props.documentId,
       translate: (key: string) => t(key),
@@ -292,9 +313,51 @@ const editor = useEditor({
             .focus()
             .insertContent({ type: "honorific", attrs: { type: commandId } })
             .run();
+        } else if (commandId === "footnote-parens" || commandId === "footnote-brackets") {
+          editor.chain().focus().insertContent({
+            type: "footnoteRef",
+            attrs: {
+              id: safeUUID(),
+              content: "",
+              bracketStyle: commandId === "footnote-brackets" ? "brackets" : "parens",
+            },
+          }).run();
+        } else if (commandId === "poetry-columns" || commandId === "poetry-interleaved") {
+          const hemistich = () => ({ type: "poetryHemistich" });
+          editor.chain().focus().insertContent({
+            type: "poetryVerse",
+            attrs: { layout: commandId === "poetry-interleaved" ? "interleaved" : "columns" },
+            content: [{ type: "poetryLine", content: [hemistich(), hemistich()] }],
+          }).run();
+        } else if (commandId === "section-end") {
+          editor.chain().focus().insertContent({ type: "sectionEnd" }).run();
+        } else if (commandId === "margin-note-right" || commandId === "margin-note-left") {
+          editor.chain().focus().insertContent({
+            type: "marginNote",
+            attrs: { side: commandId === "margin-note-left" ? "left" : "right", text: "" },
+          }).run();
+        } else if (commandId === "template-title-page") {
+          editor.chain().focus().insertContent([
+            { type: "heading", attrs: { level: 1, kind: "kitab", textAlign: "center" }, content: [{ type: "text", text: "عنوان الكتاب" }] },
+            { type: "paragraph", attrs: { textAlign: "center" }, content: [{ type: "text", text: "اسم المؤلف" }] },
+            { type: "paragraph", attrs: { textAlign: "center" }, content: [{ type: "honorific", attrs: { type: "bismillah" } }] },
+            { type: "sectionEnd" },
+          ]).run();
+        } else if (commandId === "template-fiqh-issue") {
+          editor.chain().focus().insertContent([
+            { type: "heading", attrs: { level: 1, kind: "bab" }, content: [{ type: "text", text: "عنوان المسألة" }] },
+            ...["تحرير محل النزاع", "الأقوال في المسألة", "الأدلة", "الترجيح"].map((text) => ({
+              type: "paragraph",
+              content: [{ type: "text", text: `${text}:` }],
+            })),
+          ]).run();
+        } else if (commandId.startsWith("heading-")) {
+          const kind = commandId.slice("heading-".length);
+          editor.chain().focus().setHeading({ level: 1 }).updateAttributes("heading", { kind }).run();
         }
       },
     }),
+    ...(props.extensions ?? []),
   ],
   editable: props.editable,
   editorProps: {
@@ -607,11 +670,9 @@ function insertQuranMushaf(data: {
   color: var(--color-ink);
 }
 
-/* ProseMirror disables ligatures globally to avoid Latin cursor-positioning
-   bugs, which also kills Arabic shaping (lam-alif renders as isolated ل + ا).
-   Re-enable on Arabic font runs. */
-.tiptap .font-quran,
-.tiptap .font-quran-uthmani {
+/* ProseMirror disables ligatures globally, which breaks Arabic shaping. */
+.qirtaas-scope .tiptap[dir="rtl"],
+.qirtaas-scope .tiptap [dir="rtl"] {
   font-variant-ligatures: normal;
   -webkit-font-variant-ligatures: normal;
   font-feature-settings: "liga", "calt", "rlig";

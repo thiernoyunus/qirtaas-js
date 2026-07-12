@@ -7,6 +7,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { createQirtaasClient } from "@qirtaas/core";
 import type {
   EditorInstance,
+  EditorMountOptions,
   QirtaasClientOptions,
   Json,
   Locale,
@@ -25,6 +26,9 @@ const props = defineProps<{
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
+  extensions?: EditorMountOptions["extensions"];
+  keymap?: EditorMountOptions["keymap"];
+  abbreviations?: EditorMountOptions["abbreviations"];
 }>();
 
 const emit = defineEmits<{
@@ -51,6 +55,9 @@ onMounted(() => {
     readOnly: props.readOnly,
     autofocus: props.autofocus,
     autosave: props.autosave,
+    extensions: props.extensions,
+    keymap: props.keymap,
+    abbreviations: props.abbreviations,
     onReady: () => emit("ready"),
     onChange: (json) => emit("change", json),
     onSaveStateChange: (state) => emit("saveStateChange", state),
@@ -80,6 +87,7 @@ onBeforeUnmount(() => {
 
 defineExpose({
   getJSON: () => instance?.getJSON() ?? null,
+  getHTML: () => instance?.getHTML() ?? "",
   save: () => instance?.save() ?? Promise.resolve(),
   setEditable: (editable: boolean) => instance?.setEditable(editable),
   setTheme: (theme: Theme) => instance?.setTheme(theme),

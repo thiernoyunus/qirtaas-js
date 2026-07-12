@@ -31,6 +31,9 @@ export interface QirtaasEditorProps {
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
+  extensions?: EditorMountOptions["extensions"];
+  keymap?: EditorMountOptions["keymap"];
+  abbreviations?: EditorMountOptions["abbreviations"];
   onReady?: () => void;
   onChange?: (json: Json) => void;
   onSaveStateChange?: (state: SaveState) => void;
@@ -42,6 +45,7 @@ export interface QirtaasEditorProps {
 
 export interface QirtaasEditorHandle {
   getJSON: () => Json | null;
+  getHTML: () => string;
   save: () => Promise<void>;
   setEditable: (editable: boolean) => void;
   setTheme: (theme: Theme) => void;
@@ -70,6 +74,9 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         readOnly: p.readOnly,
         autofocus: p.autofocus,
         autosave: p.autosave,
+        extensions: p.extensions,
+        keymap: p.keymap,
+        abbreviations: p.abbreviations,
         onReady: () => latest.current.onReady?.(),
         onChange: (json) => latest.current.onChange?.(json),
         onSaveStateChange: (state) => latest.current.onSaveStateChange?.(state),
@@ -97,6 +104,7 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
       ref,
       () => ({
         getJSON: () => instance.current?.getJSON() ?? null,
+        getHTML: () => instance.current?.getHTML() ?? "",
         save: () => instance.current?.save() ?? Promise.resolve(),
         setEditable: (editable: boolean) => instance.current?.setEditable(editable),
         setTheme: (theme: Theme) => instance.current?.setTheme(theme),
