@@ -769,6 +769,37 @@ function insertQuranMushaf(data: {
   color: #94a3b8;
 }
 
+/* Headings in book mode use the same fixed dark ink as body text
+   (#1c1c1c, set on .qirtaas-page-mode-book .tiptap above) instead of
+   var(--color-ink), which in dark mode (.qirtaas-dark) resolves to a
+   light/near-white color that would be nearly invisible on the forced
+   white page background. */
+.qirtaas-page-mode-book .tiptap h1,
+.qirtaas-page-mode-book .tiptap h2,
+.qirtaas-page-mode-book .tiptap h3 {
+  color: #1c1c1c;
+}
+
+/* Same treatment for elements that inherit theme-dependent variables:
+   blockquote text, code/pre/table-head backgrounds, table/horizontal-rule
+   borders — all must use fixed (light-theme) values inside the forced-white
+   book page so dark mode doesn't wash them out. */
+.qirtaas-page-mode-book .tiptap blockquote {
+  color: #475569;
+}
+.qirtaas-page-mode-book .tiptap code,
+.qirtaas-page-mode-book .tiptap pre,
+.qirtaas-page-mode-book .tiptap table th {
+  background-color: #f8fafc;
+}
+.qirtaas-page-mode-book .tiptap table td,
+.qirtaas-page-mode-book .tiptap table th {
+  border-color: #e2e8f0;
+}
+.qirtaas-page-mode-book .tiptap hr {
+  border-top-color: #e2e8f0;
+}
+
 /* ProseMirror disables ligatures globally, which breaks Arabic shaping. */
 .qirtaas-scope .tiptap[dir="rtl"],
 .qirtaas-scope .tiptap [dir="rtl"] {
