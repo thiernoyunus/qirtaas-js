@@ -91,6 +91,7 @@ export function mountEditor(
         editable: liveState.editable,
         theme: liveState.theme,
         pageMode: liveState.pageMode,
+        bookHeader: options.bookHeader,
         autofocus: options.autofocus ?? false,
         autosaveEnabled: options.autosave?.enabled ?? true,
         autosaveDebounceMs: options.autosave?.debounceMs ?? 1500,

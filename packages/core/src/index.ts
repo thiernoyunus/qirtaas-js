@@ -24,6 +24,7 @@ export type {
   Locale,
   Theme,
   PageMode,
+  BookHeaderOptions,
   SaveState,
   ErrorCode,
   AutosaveOptions,

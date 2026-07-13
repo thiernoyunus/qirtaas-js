@@ -41,6 +41,7 @@ import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
 import { AbbrevExpander } from "./extensions/AbbrevExpander";
 import { PaginationPlus } from "tiptap-pagination-plus";
 import { BOOK_PAGE_PX } from "./bookPage";
+import type { BookHeaderOptions } from "../mount/types";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -70,6 +71,7 @@ const props = withDefaults(
     keymap?: Record<string, KeymapAction | false>;
     abbreviations?: Record<string, string>;
     pageMode?: "notes" | "book";
+    bookHeader?: BookHeaderOptions;
   }>(),
   { editable: true, autofocus: false, documentId: undefined, pageMode: "notes" }
 );
@@ -79,6 +81,25 @@ const emit = defineEmits<{
   /** Fired once the TipTap instance is created and usable. */
   ready: [];
 }>();
+
+const escapeHeaderText = (text: string) =>
+  text.replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[char]!);
+
+const runningTitle =
+  props.bookHeader?.showTitle === false || !props.bookHeader?.title
+    ? ""
+    : `<span class="qirtaas-running-title">${escapeHeaderText(props.bookHeader.title)}</span>`;
+const runningPageNumber =
+  props.bookHeader?.showPageNumber === false
+    ? ""
+    : '<span class="qirtaas-running-page">{page}</span>';
+const hasRunningHeader = Boolean(runningTitle || runningPageNumber);
 
 const { t, locale } = useI18n();
 
@@ -299,10 +320,10 @@ const editor = useEditor({
             marginRight: BOOK_PAGE_PX.margin,
             contentMarginTop: 0,
             contentMarginBottom: 0,
-            // Layer 3 (running header/footer) owns real header/footer content;
-            // keep the library's built-in one blank so nothing shows yet.
-            headerLeft: "",
-            headerRight: "",
+            // Layer 3 uses the library's header slots; chapter ornaments stay
+            // in the document so authors add them only where they want them.
+            headerLeft: runningTitle,
+            headerRight: runningPageNumber,
             footerLeft: "",
             footerRight: "",
             pageGap: 32,
@@ -563,7 +584,11 @@ function insertQuranMushaf(data: {
 <template>
   <div
     class="flex flex-col flex-1"
-    :class="{ 'qirtaas-page-mode-book': pageMode === 'book' }"
+    :class="{
+      'qirtaas-page-mode-book': pageMode === 'book',
+      'qirtaas-book-header-first-page': bookHeader?.showOnFirstPage,
+      'qirtaas-book-header-empty': !hasRunningHeader,
+    }"
   >
     <div
       v-if="failedToLoad"
@@ -764,6 +789,68 @@ function insertQuranMushaf(data: {
 .qirtaas-page-mode-book .tiptap.rm-with-pagination {
   border: none !important;
 }
+
+/* Running header: title faces the binding, page number faces the outer edge.
+   PaginationPlus inserts the next page's header inside each page break, so
+   even break rows correspond to odd-numbered pages and mirror the layout. */
+.qirtaas-page-mode-book .rm-page-header-content {
+  align-items: center;
+  border-bottom: 1px solid #1c1c1c;
+  color: #1c1c1c;
+  display: flex;
+  font-family: "Noto Naskh Arabic", serif;
+  justify-content: space-between;
+  margin-left: var(--rm-margin-left);
+  margin-right: var(--rm-margin-right);
+  padding-bottom: 0.35rem;
+  width: calc(100% - var(--rm-margin-left) - var(--rm-margin-right)) !important;
+}
+
+.qirtaas-page-mode-book .rm-page-break:nth-child(even) .rm-page-header-content,
+.qirtaas-page-mode-book .rm-first-page-header .rm-page-header-content {
+  flex-direction: row-reverse;
+}
+
+.qirtaas-page-mode-book:not(.qirtaas-book-header-first-page) .rm-first-page-header {
+  display: none !important;
+}
+
+.qirtaas-page-mode-book.qirtaas-book-header-empty .rm-page-header {
+  display: none !important;
+}
+
+.qirtaas-page-mode-book .rm-page-header-left,
+.qirtaas-page-mode-book .rm-page-header-right {
+  float: none;
+  margin: 0;
+}
+
+.qirtaas-running-title {
+  font-weight: 700;
+}
+
+.qirtaas-running-page {
+  border: 1px solid currentColor;
+  display: inline-block;
+  font-family: serif;
+  line-height: 1.2;
+  min-width: 2.5rem;
+  padding: 0.1rem 0.45rem;
+  position: relative;
+  text-align: center;
+}
+
+.qirtaas-running-page::before,
+.qirtaas-running-page::after {
+  content: "◆";
+  font-size: 0.45rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.qirtaas-running-page::before { left: -0.65rem; }
+.qirtaas-running-page::after { right: -0.65rem; }
 
 .qirtaas-page-mode-book .tiptap .is-empty::before {
   color: #94a3b8;
