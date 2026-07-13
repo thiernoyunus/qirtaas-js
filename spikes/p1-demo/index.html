@@ -16,6 +16,11 @@
   <body>
     <div id="status">Custom extension has not loaded.</div>
     <div id="usage">Try these: Alt+X footnote · Alt+Q/W poetry · Alt+K/L margin notes · Alt+M ornament · /صفحة عنوان and /عناصر المسألة الفقهية templates · عز، سبح، جل، رح2، رح11 then Tab/F3 · رح1 then Tab · ص1 then F3 · Alt+F custom ★ · demo1 then Tab for custom text.</div>
+    <div id="modebar" style="padding:0.5rem 1rem;background:#f3f3f3;border-bottom:1px solid #ddd;">
+      Mode: <button id="mode-notes" type="button">Notes (scrolling)</button>
+      <button id="mode-book" type="button">Book (real page)</button>
+      <span style="color:#666;font-size:0.85rem;">— Book mode shows your writing on a real page.</span>
+    </div>
     <div id="editor"></div>
     <script src="../../packages/core/dist/qirtaas.umd.js"></script>
     <script type="module">
@@ -29,6 +34,20 @@
           status.style.background = "#d1e7dd";
         },
       });
+
+      // P2 Layer 2 (live page breaks): book mode needs enough content to
+      // overflow several A4 pages on load so pagination is visible without
+      // typing first. Repeat a filler paragraph of Arabic prose between the
+      // existing P1 feature showcase blocks (footnote/poetry/margin
+      // notes/honorifics/section-end) so both are exercised in book mode.
+      const fillerText =
+        "الحمد لله رب العالمين، والصلاة والسلام على أشرف الأنبياء والمرسلين، نبينا محمد وعلى آله وصحبه أجمعين. أما بعد، فهذا نص تجريبي طويل الغرض منه ملء الصفحة حتى تتجاوز حدود الصفحة الواحدة، فتظهر الصفحة الثانية والثالثة بشكل واضح أثناء الكتابة والتمرير، وذلك لاختبار محرك التقسيم إلى صفحات في وضع الكتاب.";
+      const fillerParagraph = (i) => ({
+        type: "paragraph",
+        attrs: { dir: "rtl", textAlign: "right" },
+        content: [{ type: "text", text: `(${i + 1}) ${fillerText}` }],
+      });
+      const fillerParagraphs = Array.from({ length: 40 }, (_, i) => fillerParagraph(i));
 
       const client = Qirtaas.createQirtaasClient({ getToken: () => "local-demo" });
       window.editor = client.mountEditor("#editor", {
@@ -46,6 +65,7 @@
               { type: "text", text: ". " }, { type: "honorific", attrs: { type: "radiAnhu" } },
               { type: "text", text: " " }, { type: "honorific", attrs: { type: "bismillah" } },
             ] },
+            ...fillerParagraphs.slice(0, 14),
             { type: "heading", attrs: { level: 2, kind: "bab" }, content: [{ type: "text", text: "باب الشعر" }] },
             { type: "poetryVerse", attrs: { layout: "columns" }, content: [
               { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "ألا كل شيء ما خلا الله باطل" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "وكل نعيم لا محالة زائل" }] }] },
@@ -55,14 +75,20 @@
               { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "العلم يرفع بيتا لا عماد له" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "والجهل يهدم بيت العز والكرم" }] }] },
               { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "فاطلب لنفسك علما تستضيء به" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "فالعلم نور وفي الجهل الظلام" }] }] },
             ] },
+            ...fillerParagraphs.slice(14, 27),
             { type: "sectionEnd", attrs: { variant: "flower-row" } },
+            ...fillerParagraphs.slice(27),
           ],
         },
         autosave: { enabled: false },
+        pageMode: "book",
         extensions: [registryProof],
         keymap: { "Alt+KeyF": { type: "insertText", text: "★" } },
         abbreviations: { demo1: "Custom expansion works" },
       });
+
+      document.querySelector("#mode-notes").addEventListener("click", () => window.editor.setPageMode("notes"));
+      document.querySelector("#mode-book").addEventListener("click", () => window.editor.setPageMode("book"));
     </script>
   </body>
 </html>

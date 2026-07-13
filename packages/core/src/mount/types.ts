@@ -6,6 +6,15 @@ export type Json = Record<string, unknown>;
 
 export type Locale = "en" | "ar";
 export type Theme = "light" | "dark";
+/**
+ * Document mode (P2 Layer 1, PLAN.md §5b). Fixed at document creation in the
+ * product, but exposed as a live setter here for demo/testing convenience.
+ * 'notes' is the existing scrolling editor (default, zero regression).
+ * 'book' renders the editor content on a centered, A4-proportioned page
+ * surface — CSS only, no pagination engine (later layers add page breaks,
+ * headers/footers, and footnotes-at-bottom).
+ */
+export type PageMode = "notes" | "book";
 
 /** Autosave/document lifecycle state, surfaced via onSaveStateChange. */
 export type SaveState = "idle" | "saving" | "saved" | "error";
@@ -38,6 +47,8 @@ export interface EditorMountOptions {
   abbreviations?: Record<string, string>;
   locale?: Locale;
   theme?: Theme;
+  /** Document mode: scrolling notes editor, or the book page surface. Default 'notes'. */
+  pageMode?: PageMode;
   /** Start read-only. Editing can be toggled later via setEditable(). */
   readOnly?: boolean;
   autofocus?: boolean;
@@ -73,6 +84,8 @@ export interface EditorInstance {
   setEditable(editable: boolean): void;
   /** Switch theme live. */
   setTheme(theme: Theme): void;
+  /** Switch document mode (notes/book) live. */
+  setPageMode(mode: PageMode): void;
   /** Tear down the editor and release the shared overlay root. */
   destroy(): void;
 }

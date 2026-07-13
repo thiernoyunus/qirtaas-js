@@ -23,6 +23,7 @@ export type {
   Json,
   Locale,
   Theme,
+  PageMode,
   SaveState,
   ErrorCode,
   AutosaveOptions,

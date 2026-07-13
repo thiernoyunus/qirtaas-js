@@ -28,6 +28,7 @@ export interface QirtaasEditorProps {
   getToken: NonNullable<QirtaasClientOptions["getToken"]>;
   locale?: Locale;
   theme?: Theme;
+  pageMode?: EditorMountOptions["pageMode"];
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -71,6 +72,7 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         initialContent: p.initialContent ?? null,
         locale: p.locale,
         theme: p.theme,
+        pageMode: p.pageMode,
         readOnly: p.readOnly,
         autofocus: p.autofocus,
         autosave: p.autosave,

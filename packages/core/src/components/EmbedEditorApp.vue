@@ -30,6 +30,7 @@ const props = withDefaults(
     editable?: boolean;
     autofocus?: boolean;
     theme?: "light" | "dark";
+    pageMode?: "notes" | "book";
     autosaveEnabled?: boolean;
     autosaveDebounceMs?: number;
     onReady?: () => void;
@@ -42,6 +43,7 @@ const props = withDefaults(
     editable: true,
     autofocus: false,
     theme: "light",
+    pageMode: "notes",
     autosaveEnabled: true,
     autosaveDebounceMs: 1500,
     initialContent: null,
@@ -230,10 +232,12 @@ defineExpose({
       <div class="flex-1 min-h-0 min-w-0 overflow-y-auto relative" data-editor-scroll>
         <DocumentEditor
           ref="editorRef"
+          :key="pageMode"
           :model-value="content"
           :extensions="extensions"
           :keymap="keymap"
           :abbreviations="abbreviations"
+          :page-mode="pageMode"
           :editable="editable && !loadFailed"
           :autofocus="autofocus"
           :document-id="docId ?? undefined"
