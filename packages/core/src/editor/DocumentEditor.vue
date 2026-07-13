@@ -99,6 +99,7 @@ const runningPageNumber =
   props.bookHeader?.showPageNumber === false
     ? ""
     : '<span class="qirtaas-running-page">{page}</span>';
+const hasRunningHeader = Boolean(runningTitle || runningPageNumber);
 
 const { t, locale } = useI18n();
 
@@ -586,6 +587,7 @@ function insertQuranMushaf(data: {
     :class="{
       'qirtaas-page-mode-book': pageMode === 'book',
       'qirtaas-book-header-first-page': bookHeader?.showOnFirstPage,
+      'qirtaas-book-header-empty': !hasRunningHeader,
     }"
   >
     <div
@@ -810,6 +812,10 @@ function insertQuranMushaf(data: {
 }
 
 .qirtaas-page-mode-book:not(.qirtaas-book-header-first-page) .rm-first-page-header {
+  display: none !important;
+}
+
+.qirtaas-page-mode-book.qirtaas-book-header-empty .rm-page-header {
   display: none !important;
 }
 
