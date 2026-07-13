@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NodeViewWrapper } from "@tiptap/vue-3";
 import type { Editor } from "@tiptap/core";
 import type { FootnoteBracketStyle } from "./extensions/Footnote";
@@ -12,6 +12,7 @@ const props = defineProps<{
 
 const open = ref(false);
 const isEditable = ref(props.editor.isEditable);
+const editorEl = ref<HTMLElement | null>(null);
 const arabicNumber = computed(() =>
   String(props.node.attrs.number).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]!),
 );
@@ -28,6 +29,17 @@ function syncEditable() {
 onMounted(() => props.editor.on("update", syncEditable));
 onBeforeUnmount(() => props.editor.off("update", syncEditable));
 
+// The popover's contenteditable is set from the node's content once, on
+// open, via a template ref (not a reactive {{ }} interpolation): flushing
+// every keystroke into ProseMirror (below) would otherwise round-trip back
+// into this element's text and reset the caret to the start on every input.
+watch(
+  () => open.value,
+  (isOpen) => {
+    if (isOpen) nextTick(() => { if (editorEl.value) editorEl.value.textContent = props.node.attrs.content; });
+  },
+);
+
 function save(event: Event) {
   props.updateAttributes({ content: (event.target as HTMLElement).innerText });
 }
@@ -36,9 +48,9 @@ function save(event: Event) {
 <template>
   <NodeViewWrapper as="span" class="footnote-ref" contenteditable="false">
     <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" @click="open = !open">{{ marker }}</button>
-    <span v-else>{{ props.node.attrs.content }}</span>
+    <span v-else class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`">{{ marker }}</span>
     <span v-if="isEditable && open" class="footnote-popover" role="dialog" @keydown.stop @mousedown.stop>
-      <span class="footnote-editor" contenteditable="true" dir="auto" @blur="save">{{ props.node.attrs.content }}</span>
+      <span ref="editorEl" class="footnote-editor" contenteditable="true" dir="auto" @input="save" @blur="save"></span>
     </span>
   </NodeViewWrapper>
 </template>

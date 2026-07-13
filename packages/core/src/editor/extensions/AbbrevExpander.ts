@@ -33,7 +33,15 @@ export const AbbrevExpander = Extension.create<AbbrevExpanderOptions>({
           const { $from, empty } = view.state.selection;
           if (!empty || !$from.parent.isTextblock) return false;
           const before = $from.parent.textBetween(0, $from.parentOffset, undefined, "\ufffc");
-          const abbreviation = keys.find((key) => before.endsWith(key));
+          const abbreviation = keys.find((key) => {
+            if (!before.endsWith(key)) return false;
+            const boundaryIndex = before.length - key.length;
+            // Require a word boundary before the match \u2014 start of the
+            // textblock, or preceded by whitespace \u2014 so a default like
+            // "\u062c\u0644" doesn't hijack ordinary words that happen to end with
+            // the same letters (e.g. "\u0631\u062c\u0644").
+            return boundaryIndex === 0 || /\s/.test(before[boundaryIndex - 1]!);
+          });
           if (!abbreviation) return false;
 
           const expansion = abbreviations[abbreviation]!;
