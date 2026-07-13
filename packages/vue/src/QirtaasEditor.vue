@@ -25,6 +25,7 @@ const props = defineProps<{
   locale?: Locale;
   theme?: Theme;
   pageMode?: PageMode;
+  bookHeader?: EditorMountOptions["bookHeader"];
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -55,6 +56,7 @@ onMounted(() => {
     locale: props.locale,
     theme: props.theme,
     pageMode: props.pageMode,
+    bookHeader: props.bookHeader,
     readOnly: props.readOnly,
     autofocus: props.autofocus,
     autosave: props.autosave,

@@ -29,6 +29,7 @@ export interface QirtaasEditorProps {
   locale?: Locale;
   theme?: Theme;
   pageMode?: EditorMountOptions["pageMode"];
+  bookHeader?: EditorMountOptions["bookHeader"];
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -73,6 +74,7 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         locale: p.locale,
         theme: p.theme,
         pageMode: p.pageMode,
+        bookHeader: p.bookHeader,
         readOnly: p.readOnly,
         autofocus: p.autofocus,
         autosave: p.autosave,

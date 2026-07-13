@@ -16,6 +16,18 @@ export type Theme = "light" | "dark";
  */
 export type PageMode = "notes" | "book";
 
+/** Repeating furniture for book pages. Chapter decorations stay in document content. */
+export interface BookHeaderOptions {
+  /** Book name repeated at the inside edge of each page. */
+  title?: string;
+  /** Hide the repeated book name without removing it. Default true. */
+  showTitle?: boolean;
+  /** Show the automatic page number at the outside edge. Default true. */
+  showPageNumber?: boolean;
+  /** Opening pages normally omit the running header. Default false. */
+  showOnFirstPage?: boolean;
+}
+
 /** Autosave/document lifecycle state, surfaced via onSaveStateChange. */
 export type SaveState = "idle" | "saving" | "saved" | "error";
 
@@ -49,6 +61,8 @@ export interface EditorMountOptions {
   theme?: Theme;
   /** Document mode: scrolling notes editor, or the book page surface. Default 'notes'. */
   pageMode?: PageMode;
+  /** Automatic repeating header used in book mode. */
+  bookHeader?: BookHeaderOptions;
   /** Start read-only. Editing can be toggled later via setEditable(). */
   readOnly?: boolean;
   autofocus?: boolean;
