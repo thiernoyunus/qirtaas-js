@@ -43,7 +43,7 @@ import { PaginationPlus } from "tiptap-pagination-plus";
 import { BOOK_PAGE_PX } from "./bookPage";
 import { BookFootnotes } from "./extensions/BookFootnotes";
 import { escapeHtml } from "./escapeHtml";
-import type { BookHeaderOptions } from "../mount/types";
+import type { BookHeaderOptions, BookThemePreset } from "../mount/types";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
 import HadithSearchDialog from "./HadithSearchDialog.vue";
@@ -74,8 +74,15 @@ const props = withDefaults(
     abbreviations?: Record<string, string>;
     pageMode?: "notes" | "book";
     bookHeader?: BookHeaderOptions;
+    bookTheme?: BookThemePreset;
   }>(),
-  { editable: true, autofocus: false, documentId: undefined, pageMode: "notes" }
+  {
+    editable: true,
+    autofocus: false,
+    documentId: undefined,
+    pageMode: "notes",
+    bookTheme: "classical-monochrome",
+  }
 );
 
 const emit = defineEmits<{
@@ -583,6 +590,7 @@ function insertQuranMushaf(data: {
       'qirtaas-book-header-first-page': bookHeader?.showOnFirstPage,
       'qirtaas-book-header-empty': !hasRunningHeader,
     }"
+    :data-book-theme="pageMode === 'book' ? bookTheme : undefined"
   >
     <div
       v-if="failedToLoad"
@@ -750,6 +758,63 @@ function insertQuranMushaf(data: {
      continuous sheet. Same var name light + dark so the gap always matches
      the current backdrop. */
   --qirtaas-book-gap-bg: #e6e6e6;
+  --qirtaas-book-paper: #fff;
+  --qirtaas-book-ink: #1c1c1c;
+  --qirtaas-book-accent: #1c1c1c;
+  --qirtaas-book-header-rule: #1c1c1c;
+  --qirtaas-book-footnote-rule: #1c1c1c;
+  --qirtaas-book-heading: #1c1c1c;
+  --qirtaas-book-page-number-bg: transparent;
+  --qirtaas-book-page-number-radius: 0;
+  --qirtaas-book-ornament: #1c1c1c;
+}
+
+.qirtaas-page-mode-book[data-book-theme="parchment-indigo"] {
+  --qirtaas-book-paper: #fffdf6;
+  --qirtaas-book-ink: #211d22;
+  --qirtaas-book-accent: #29356f;
+  --qirtaas-book-header-rule: #29356f;
+  --qirtaas-book-footnote-rule: #29356f;
+  --qirtaas-book-heading: #a02c67;
+  --qirtaas-book-page-number-bg: #f2edf7;
+  --qirtaas-book-page-number-radius: 999px;
+  --qirtaas-book-ornament: #a02c67;
+}
+
+.qirtaas-page-mode-book[data-book-theme="modern-gradient"] {
+  --qirtaas-book-paper: #fff;
+  --qirtaas-book-ink: #17212b;
+  --qirtaas-book-accent: #0f766e;
+  --qirtaas-book-header-rule: #b58b32;
+  --qirtaas-book-footnote-rule: #5da9a2;
+  --qirtaas-book-heading: #a02f2f;
+  --qirtaas-book-page-number-bg: #e7f5f3;
+  --qirtaas-book-page-number-radius: 0.3rem;
+  --qirtaas-book-ornament: #b58b32;
+}
+
+.qirtaas-page-mode-book[data-book-theme="deluxe-leather"] {
+  --qirtaas-book-paper: #fffaf0;
+  --qirtaas-book-ink: #1b1a18;
+  --qirtaas-book-accent: #9a6b20;
+  --qirtaas-book-header-rule: #9a6b20;
+  --qirtaas-book-footnote-rule: #1b1a18;
+  --qirtaas-book-heading: #641f2a;
+  --qirtaas-book-page-number-bg: #f7ecd3;
+  --qirtaas-book-page-number-radius: 50%;
+  --qirtaas-book-ornament: #9a6b20;
+}
+
+.qirtaas-page-mode-book[data-book-theme="plain-modern"] {
+  --qirtaas-book-paper: #fff;
+  --qirtaas-book-ink: #202020;
+  --qirtaas-book-accent: #555;
+  --qirtaas-book-header-rule: #aaa;
+  --qirtaas-book-footnote-rule: #888;
+  --qirtaas-book-heading: #202020;
+  --qirtaas-book-page-number-bg: transparent;
+  --qirtaas-book-page-number-radius: 0;
+  --qirtaas-book-ornament: #555;
 }
 
 .qirtaas-dark .qirtaas-page-mode-book {
@@ -767,8 +832,8 @@ function insertQuranMushaf(data: {
   min-height: 29.7cm;
   margin: 0 auto;
   padding: 2.5cm;
-  background: #ffffff;
-  color: #1c1c1c;
+  background: var(--qirtaas-book-paper);
+  color: var(--qirtaas-book-ink);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 12px 32px rgba(0, 0, 0, 0.16);
@@ -789,8 +854,8 @@ function insertQuranMushaf(data: {
    even break rows correspond to odd-numbered pages and mirror the layout. */
 .qirtaas-page-mode-book .rm-page-header-content {
   align-items: center;
-  border-bottom: 1px solid #1c1c1c;
-  color: #1c1c1c;
+  border-bottom: 1px solid var(--qirtaas-book-header-rule);
+  color: var(--qirtaas-book-ink);
   display: flex;
   font-family: "Noto Naskh Arabic", serif;
   justify-content: space-between;
@@ -820,6 +885,7 @@ function insertQuranMushaf(data: {
 }
 
 .qirtaas-running-title {
+  color: var(--qirtaas-book-heading);
   font-weight: 700;
 }
 
@@ -830,6 +896,9 @@ function insertQuranMushaf(data: {
   line-height: 1.2;
   min-width: 2.5rem;
   padding: 0.1rem 0.45rem;
+  background: var(--qirtaas-book-page-number-bg);
+  border-radius: var(--qirtaas-book-page-number-radius);
+  color: var(--qirtaas-book-accent);
   position: relative;
   text-align: center;
 }
@@ -847,9 +916,9 @@ function insertQuranMushaf(data: {
 .qirtaas-running-page::after { right: -0.65rem; }
 
 .qirtaas-page-mode-book .qirtaas-page-footnotes {
-  border-top: 1px solid #1c1c1c;
+  border-top: 1px solid var(--qirtaas-book-footnote-rule);
   box-sizing: border-box;
-  color: #1c1c1c;
+  color: var(--qirtaas-book-ink);
   font-size: 0.78em;
   line-height: 1.6;
   padding-top: 0.4rem;
@@ -876,7 +945,7 @@ function insertQuranMushaf(data: {
 }
 
 .qirtaas-page-mode-book .qirtaas-page-footnote-marker {
-  color: var(--color-accent);
+  color: var(--qirtaas-book-accent);
   font-weight: 700;
 }
 
@@ -905,7 +974,29 @@ function insertQuranMushaf(data: {
 .qirtaas-page-mode-book .tiptap h1,
 .qirtaas-page-mode-book .tiptap h2,
 .qirtaas-page-mode-book .tiptap h3 {
-  color: #1c1c1c;
+  color: var(--qirtaas-book-heading);
+}
+
+.qirtaas-page-mode-book .tiptap [data-type="section-end"] {
+  color: var(--qirtaas-book-ornament);
+}
+
+.qirtaas-page-mode-book[data-book-theme="deluxe-leather"] .tiptap h1[data-kind],
+.qirtaas-page-mode-book[data-book-theme="deluxe-leather"] .tiptap h2[data-kind],
+.qirtaas-page-mode-book[data-book-theme="modern-gradient"] .tiptap h1[data-kind],
+.qirtaas-page-mode-book[data-book-theme="modern-gradient"] .tiptap h2[data-kind] {
+  border-block: 1px solid color-mix(in srgb, var(--qirtaas-book-accent) 55%, transparent);
+  padding-block: 0.35rem;
+  text-align: center;
+}
+
+.qirtaas-page-mode-book[data-book-theme="plain-modern"] .qirtaas-running-page {
+  border: 0;
+}
+
+.qirtaas-page-mode-book[data-book-theme="plain-modern"] .qirtaas-running-page::before,
+.qirtaas-page-mode-book[data-book-theme="plain-modern"] .qirtaas-running-page::after {
+  display: none;
 }
 
 /* Same treatment for elements that inherit theme-dependent variables:

@@ -16,7 +16,13 @@ import {
 import { QirtaasHttpError } from "../services/fetchChannel";
 import { docIsEmpty } from "../editor/docUtils";
 import { useDocumentAutosave } from "../composables/useDocumentAutosave";
-import type { BookHeaderOptions, ErrorCode, Json, SaveState } from "../mount/types";
+import type {
+  BookHeaderOptions,
+  BookThemePreset,
+  ErrorCode,
+  Json,
+  SaveState,
+} from "../mount/types";
 import type { AnyExtension } from "@tiptap/core";
 import type { KeymapAction } from "../editor/extensions/BookKeymap";
 
@@ -32,6 +38,7 @@ const props = withDefaults(
     theme?: "light" | "dark";
     pageMode?: "notes" | "book";
     bookHeader?: BookHeaderOptions;
+    bookTheme?: BookThemePreset;
     autosaveEnabled?: boolean;
     autosaveDebounceMs?: number;
     onReady?: () => void;
@@ -45,6 +52,7 @@ const props = withDefaults(
     autofocus: false,
     theme: "light",
     pageMode: "notes",
+    bookTheme: "classical-monochrome",
     autosaveEnabled: true,
     autosaveDebounceMs: 1500,
     initialContent: null,
@@ -240,6 +248,7 @@ defineExpose({
           :abbreviations="abbreviations"
           :page-mode="pageMode"
           :book-header="bookHeader"
+          :book-theme="bookTheme"
           :editable="editable && !loadFailed"
           :autofocus="autofocus"
           :document-id="docId ?? undefined"
