@@ -7,12 +7,14 @@ import type { FootnoteBracketStyle } from "./extensions/Footnote";
 const props = defineProps<{
   node: { attrs: { id: string; content: string; bracketStyle: FootnoteBracketStyle; number: number } };
   editor: Editor;
+  getPos: () => number | undefined;
   updateAttributes: (attrs: Record<string, unknown>) => void;
 }>();
 
 const open = ref(false);
 const isEditable = ref(props.editor.isEditable);
 const editorEl = ref<HTMLElement | null>(null);
+const footnoteId = computed(() => props.node.attrs.id || String(props.getPos() ?? ""));
 const arabicNumber = computed(() =>
   String(props.node.attrs.number).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]!),
 );
@@ -36,7 +38,11 @@ onBeforeUnmount(() => props.editor.off("update", syncEditable));
 watch(
   () => open.value,
   (isOpen) => {
-    if (isOpen) nextTick(() => { if (editorEl.value) editorEl.value.textContent = props.node.attrs.content; });
+    if (isOpen) nextTick(() => {
+      if (!editorEl.value) return;
+      editorEl.value.textContent = props.node.attrs.content;
+      editorEl.value.focus();
+    });
   },
 );
 
@@ -46,11 +52,16 @@ function save(event: Event) {
 </script>
 
 <template>
-  <NodeViewWrapper as="span" class="footnote-ref" contenteditable="false">
-    <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" @click="open = !open">{{ marker }}</button>
+  <NodeViewWrapper
+    as="span"
+    class="footnote-ref"
+    contenteditable="false"
+    :data-footnote-id="footnoteId"
+  >
+    <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" aria-haspopup="dialog" :aria-expanded="open" @click="open = !open">{{ marker }}</button>
     <span v-else class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`">{{ marker }}</span>
-    <span v-if="isEditable && open" class="footnote-popover" role="dialog" @keydown.stop @mousedown.stop>
-      <span ref="editorEl" class="footnote-editor" contenteditable="true" dir="auto" @input="save" @blur="save"></span>
+    <span v-if="isEditable && open" class="footnote-popover" role="dialog" :aria-label="`Edit footnote ${props.node.attrs.number}`" @keydown.stop @mousedown.stop>
+      <span ref="editorEl" class="footnote-editor" contenteditable="true" role="textbox" :aria-label="`Footnote ${props.node.attrs.number} text`" dir="auto" @input="save" @blur="save"></span>
     </span>
   </NodeViewWrapper>
 </template>
