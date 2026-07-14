@@ -105,7 +105,7 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
       if (props.theme) instance.current?.setTheme(props.theme);
     }, [props.theme]);
     useEffect(() => {
-      if (props.bookTheme) instance.current?.setBookTheme(props.bookTheme);
+      instance.current?.setBookTheme(props.bookTheme ?? "classical-monochrome");
     }, [props.bookTheme]);
     useEffect(() => {
       instance.current?.setEditable(!props.readOnly);

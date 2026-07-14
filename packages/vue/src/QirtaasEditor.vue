@@ -85,9 +85,7 @@ watch(
 );
 watch(
   () => props.bookTheme,
-  (theme) => {
-    if (theme) instance?.setBookTheme(theme);
-  }
+  (theme) => instance?.setBookTheme(theme ?? "classical-monochrome")
 );
 watch(
   () => props.readOnly,
