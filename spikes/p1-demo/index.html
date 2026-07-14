@@ -65,7 +65,16 @@
               { type: "text", text: ". " }, { type: "honorific", attrs: { type: "radiAnhu" } },
               { type: "text", text: " " }, { type: "honorific", attrs: { type: "bismillah" } },
             ] },
-            ...fillerParagraphs.slice(0, 14),
+            ...fillerParagraphs.slice(0, 9),
+            { type: "paragraph", attrs: { dir: "rtl", textAlign: "right" }, content: [
+              { type: "text", text: "وهذا موضع حاشية مطولة لاختبار انتقال النص والحاشية معًا" },
+              { type: "footnoteRef", attrs: {
+                id: "demo-long-footnote",
+                content: "هذه حاشية علمية مطولة لاختبار المساحة المتغيرة في أسفل الصفحة. يزداد ارتفاع موضع الحواشي بحسب مقدار النص، فينقص موضع المتن تلقائيًا من غير أن تتحول الحاشية إلى تذييل ثابت. والمقصود أن تبقى الحاشية في الصفحة نفسها التي يوجد فيها رقمها، ولو أدى ذلك إلى انتقال بعض أسطر المتن إلى الصفحة التالية. وهذا هو الأسلوب المعتاد في كتب التحقيق والشروح العربية.",
+                bracketStyle: "parens",
+              } },
+            ] },
+            ...fillerParagraphs.slice(9, 14),
             { type: "heading", attrs: { level: 2, kind: "bab" }, content: [{ type: "text", text: "باب الشعر" }] },
             { type: "poetryVerse", attrs: { layout: "columns" }, content: [
               { type: "poetryLine", content: [{ type: "poetryHemistich", content: [{ type: "text", text: "ألا كل شيء ما خلا الله باطل" }] }, { type: "poetryHemistich", content: [{ type: "text", text: "وكل نعيم لا محالة زائل" }] }] },

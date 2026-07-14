@@ -41,6 +41,8 @@ import { BookKeymap, type KeymapAction } from "./extensions/BookKeymap";
 import { AbbrevExpander } from "./extensions/AbbrevExpander";
 import { PaginationPlus } from "tiptap-pagination-plus";
 import { BOOK_PAGE_PX } from "./bookPage";
+import { BookFootnotes } from "./extensions/BookFootnotes";
+import { escapeHtml } from "./escapeHtml";
 import type { BookHeaderOptions } from "../mount/types";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import QuranSearchDialog from "./QuranSearchDialog.vue";
@@ -82,19 +84,10 @@ const emit = defineEmits<{
   ready: [];
 }>();
 
-const escapeHeaderText = (text: string) =>
-  text.replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  })[char]!);
-
 const runningTitle =
   props.bookHeader?.showTitle === false || !props.bookHeader?.title
     ? ""
-    : `<span class="qirtaas-running-title">${escapeHeaderText(props.bookHeader.title)}</span>`;
+    : `<span class="qirtaas-running-title">${escapeHtml(props.bookHeader.title)}</span>`;
 const runningPageNumber =
   props.bookHeader?.showPageNumber === false
     ? ""
@@ -336,6 +329,7 @@ const editor = useEditor({
             // page-surface rules below.
             pageBreakBackground: "var(--qirtaas-book-gap-bg)",
           }),
+          BookFootnotes.configure({ pageHeight: BOOK_PAGE_PX.height }),
         ]
       : []),
     ImageNode.configure({
@@ -851,6 +845,53 @@ function insertQuranMushaf(data: {
 
 .qirtaas-running-page::before { left: -0.65rem; }
 .qirtaas-running-page::after { right: -0.65rem; }
+
+.qirtaas-page-mode-book .qirtaas-page-footnotes {
+  border-top: 1px solid #1c1c1c;
+  box-sizing: border-box;
+  color: #1c1c1c;
+  font-size: 0.78em;
+  line-height: 1.6;
+  padding-top: 0.4rem;
+  text-align: right;
+  white-space: pre-wrap;
+  width: calc(var(--rm-page-width) - var(--rm-margin-left) - var(--rm-margin-right));
+}
+
+.qirtaas-page-mode-book .qirtaas-page-footnote + .qirtaas-page-footnote {
+  margin-top: 0.25rem;
+}
+
+.qirtaas-page-mode-book .qirtaas-page-footnote {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  line-height: inherit;
+  padding: 0;
+  text-align: inherit;
+  width: 100%;
+}
+
+.qirtaas-page-mode-book .qirtaas-page-footnote-marker {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.qirtaas-footnote-measure {
+  left: -10000px;
+  position: fixed;
+  top: 0;
+  visibility: hidden;
+}
+
+/* ponytail: a single page's notes can use 80% of its height; add note
+   continuation when real source books exceed that ceiling. */
+.qirtaas-page-mode-book .rm-page-footer {
+  max-height: calc(var(--rm-page-height) * 0.8) !important;
+}
 
 .qirtaas-page-mode-book .tiptap .is-empty::before {
   color: #94a3b8;
