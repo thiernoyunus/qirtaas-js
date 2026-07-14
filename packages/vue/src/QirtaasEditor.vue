@@ -12,6 +12,7 @@ import type {
   Json,
   Locale,
   Theme,
+  BookThemePreset,
   PageMode,
   SaveState,
   ErrorCode,
@@ -26,6 +27,7 @@ const props = defineProps<{
   theme?: Theme;
   pageMode?: PageMode;
   bookHeader?: EditorMountOptions["bookHeader"];
+  bookTheme?: BookThemePreset;
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -57,6 +59,7 @@ onMounted(() => {
     theme: props.theme,
     pageMode: props.pageMode,
     bookHeader: props.bookHeader,
+    bookTheme: props.bookTheme,
     readOnly: props.readOnly,
     autofocus: props.autofocus,
     autosave: props.autosave,
@@ -81,6 +84,10 @@ watch(
   }
 );
 watch(
+  () => props.bookTheme,
+  (theme) => instance?.setBookTheme(theme ?? "classical-monochrome")
+);
+watch(
   () => props.readOnly,
   (readOnly) => instance?.setEditable(!readOnly)
 );
@@ -96,6 +103,7 @@ defineExpose({
   save: () => instance?.save() ?? Promise.resolve(),
   setEditable: (editable: boolean) => instance?.setEditable(editable),
   setTheme: (theme: Theme) => instance?.setTheme(theme),
+  setBookTheme: (theme: BookThemePreset) => instance?.setBookTheme(theme),
 });
 </script>
 

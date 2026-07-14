@@ -18,7 +18,12 @@ import {
   releaseOverlayTarget,
   setOverlayDark,
 } from "./overlay";
-import type { EditorMountOptions, EditorInstance, Json } from "./types";
+import type {
+  BookThemePreset,
+  EditorMountOptions,
+  EditorInstance,
+  Json,
+} from "./types";
 
 interface EmbedAppExposed {
   getJSON(): Json | null;
@@ -67,6 +72,7 @@ export function mountEditor(
     theme: options.theme ?? "light",
     editable: !options.readOnly,
     pageMode: options.pageMode ?? "notes",
+    bookTheme: options.bookTheme ?? "classical-monochrome",
   });
 
   // Scoped overlay root for dialogs/menus; theme-synced (see setTheme below).
@@ -92,6 +98,7 @@ export function mountEditor(
         theme: liveState.theme,
         pageMode: liveState.pageMode,
         bookHeader: options.bookHeader,
+        bookTheme: liveState.bookTheme,
         autofocus: options.autofocus ?? false,
         autosaveEnabled: options.autosave?.enabled ?? true,
         autosaveDebounceMs: options.autosave?.debounceMs ?? 1500,
@@ -132,6 +139,9 @@ export function mountEditor(
     },
     setPageMode: (mode) => {
       liveState.pageMode = mode;
+    },
+    setBookTheme: (theme: BookThemePreset) => {
+      liveState.bookTheme = theme;
     },
     destroy: () => {
       app.unmount();

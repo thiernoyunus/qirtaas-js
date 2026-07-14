@@ -17,6 +17,7 @@ import type {
   Json,
   Locale,
   Theme,
+  BookThemePreset,
   SaveState,
   ErrorCode,
 } from "@qirtaas/core";
@@ -30,6 +31,7 @@ export interface QirtaasEditorProps {
   theme?: Theme;
   pageMode?: EditorMountOptions["pageMode"];
   bookHeader?: EditorMountOptions["bookHeader"];
+  bookTheme?: BookThemePreset;
   readOnly?: boolean;
   autofocus?: boolean;
   autosave?: EditorMountOptions["autosave"];
@@ -51,6 +53,7 @@ export interface QirtaasEditorHandle {
   save: () => Promise<void>;
   setEditable: (editable: boolean) => void;
   setTheme: (theme: Theme) => void;
+  setBookTheme: (theme: BookThemePreset) => void;
 }
 
 export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>(
@@ -75,6 +78,7 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         theme: p.theme,
         pageMode: p.pageMode,
         bookHeader: p.bookHeader,
+        bookTheme: p.bookTheme,
         readOnly: p.readOnly,
         autofocus: p.autofocus,
         autosave: p.autosave,
@@ -101,6 +105,9 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
       if (props.theme) instance.current?.setTheme(props.theme);
     }, [props.theme]);
     useEffect(() => {
+      instance.current?.setBookTheme(props.bookTheme ?? "classical-monochrome");
+    }, [props.bookTheme]);
+    useEffect(() => {
       instance.current?.setEditable(!props.readOnly);
     }, [props.readOnly]);
 
@@ -112,6 +119,8 @@ export const QirtaasEditor = forwardRef<QirtaasEditorHandle, QirtaasEditorProps>
         save: () => instance.current?.save() ?? Promise.resolve(),
         setEditable: (editable: boolean) => instance.current?.setEditable(editable),
         setTheme: (theme: Theme) => instance.current?.setTheme(theme),
+        setBookTheme: (theme: BookThemePreset) =>
+          instance.current?.setBookTheme(theme),
       }),
       []
     );

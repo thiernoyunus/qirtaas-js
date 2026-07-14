@@ -23,6 +23,7 @@ export type {
   Json,
   Locale,
   Theme,
+  BookThemePreset,
   PageMode,
   BookHeaderOptions,
   SaveState,

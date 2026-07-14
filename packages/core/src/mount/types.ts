@@ -6,6 +6,13 @@ export type Json = Record<string, unknown>;
 
 export type Locale = "en" | "ar";
 export type Theme = "light" | "dark";
+/** Visual preset for printed book pages; separate from the app's light/dark theme. */
+export type BookThemePreset =
+  | "classical-monochrome"
+  | "parchment-indigo"
+  | "modern-gradient"
+  | "deluxe-leather"
+  | "plain-modern";
 /**
  * Document mode (P2 Layer 1, PLAN.md §5b). Fixed at document creation in the
  * product, but exposed as a live setter here for demo/testing convenience.
@@ -63,6 +70,8 @@ export interface EditorMountOptions {
   pageMode?: PageMode;
   /** Automatic repeating header used in book mode. */
   bookHeader?: BookHeaderOptions;
+  /** Printed-page appearance. Default 'classical-monochrome'. */
+  bookTheme?: BookThemePreset;
   /** Start read-only. Editing can be toggled later via setEditable(). */
   readOnly?: boolean;
   autofocus?: boolean;
@@ -100,6 +109,8 @@ export interface EditorInstance {
   setTheme(theme: Theme): void;
   /** Switch document mode (notes/book) live. */
   setPageMode(mode: PageMode): void;
+  /** Switch the printed-page appearance live. */
+  setBookTheme(theme: BookThemePreset): void;
   /** Tear down the editor and release the shared overlay root. */
   destroy(): void;
 }

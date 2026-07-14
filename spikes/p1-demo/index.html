@@ -19,6 +19,15 @@
     <div id="modebar" style="padding:0.5rem 1rem;background:#f3f3f3;border-bottom:1px solid #ddd;">
       Mode: <button id="mode-notes" type="button">Notes (scrolling)</button>
       <button id="mode-book" type="button">Book (real page)</button>
+      <label style="margin-left:1rem;">Theme:
+        <select id="book-theme">
+          <option value="classical-monochrome">Classical Monochrome</option>
+          <option value="parchment-indigo">Parchment &amp; Indigo</option>
+          <option value="modern-gradient">Modern Gradient Primer</option>
+          <option value="deluxe-leather">Deluxe Leather &amp; Gold</option>
+          <option value="plain-modern">Plain Modern</option>
+        </select>
+      </label>
       <span style="color:#666;font-size:0.85rem;">— Book mode shows your writing on a real page.</span>
     </div>
     <div id="editor"></div>
@@ -99,6 +108,7 @@
 
       document.querySelector("#mode-notes").addEventListener("click", () => window.editor.setPageMode("notes"));
       document.querySelector("#mode-book").addEventListener("click", () => window.editor.setPageMode("book"));
+      document.querySelector("#book-theme").addEventListener("change", (event) => window.editor.setBookTheme(event.target.value));
     </script>
   </body>
 </html>
