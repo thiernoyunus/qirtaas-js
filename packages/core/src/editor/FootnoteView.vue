@@ -7,12 +7,14 @@ import type { FootnoteBracketStyle } from "./extensions/Footnote";
 const props = defineProps<{
   node: { attrs: { id: string; content: string; bracketStyle: FootnoteBracketStyle; number: number } };
   editor: Editor;
+  getPos: () => number | undefined;
   updateAttributes: (attrs: Record<string, unknown>) => void;
 }>();
 
 const open = ref(false);
 const isEditable = ref(props.editor.isEditable);
 const editorEl = ref<HTMLElement | null>(null);
+const footnoteId = computed(() => props.node.attrs.id || String(props.getPos() ?? ""));
 const arabicNumber = computed(() =>
   String(props.node.attrs.number).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]!),
 );
@@ -54,7 +56,7 @@ function save(event: Event) {
     as="span"
     class="footnote-ref"
     contenteditable="false"
-    :data-footnote-id="props.node.attrs.id"
+    :data-footnote-id="footnoteId"
   >
     <button v-if="isEditable" type="button" class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`" aria-haspopup="dialog" :aria-expanded="open" @click="open = !open">{{ marker }}</button>
     <span v-else class="footnote-marker" :aria-label="`Footnote ${props.node.attrs.number}`">{{ marker }}</span>

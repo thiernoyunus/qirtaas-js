@@ -32,7 +32,7 @@ export function placeFootnotes(
 
     const addedHeight = footnote.noteHeight + (notesHeight ? noteGap : separatorHeight);
     if (footnote.markerOffset >= pageStart + pageCapacity(page) - notesHeight - addedHeight) {
-      pageStart += pageCapacity(page) - notesHeight;
+      pageStart = footnote.markerOffset;
       page += 1;
       notesHeight = 0;
     }
