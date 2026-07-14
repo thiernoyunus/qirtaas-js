@@ -16,6 +16,16 @@ test("moves a reference and its note forward when the note consumes the remainin
   ], capacity, 20, 10)[0]?.page, 2);
 });
 
+test("starts the next page at a reference moved by its note", () => {
+  assert.deepEqual(
+    placeFootnotes([
+      { id: "a", markerOffset: 900, noteHeight: 200 },
+      { id: "b", markerOffset: 1750, noteHeight: 10 },
+    ], capacity, 20, 10).map(({ page }) => page),
+    [2, 3],
+  );
+});
+
 test("lets page notes consume most of a page", () => {
   assert.equal(placeFootnotes([
     { id: "a", markerOffset: 100, noteHeight: 780 },

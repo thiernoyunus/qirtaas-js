@@ -20,11 +20,8 @@ const renderNotes = (notes: FootnoteData[], page: number, editable: boolean) =>
   `<div class="qirtaas-page-footnotes" data-page-number="${page}" dir="rtl">${notes.map((note) => {
     const number = arabicNumber(note.number);
     const marker = note.bracketStyle === "brackets" ? `[${number}]` : `(${number})`;
-    const open = editable
-      ? `<button type="button" aria-label="Edit footnote ${number}"`
-      : "<div";
-    const close = editable ? "</button>" : "</div>";
-    return `${open} class="qirtaas-page-footnote" data-footnote-id="${escapeHtml(note.id)}"><span class="qirtaas-page-footnote-marker">${marker}</span> ${escapeHtml(note.content)}${close}`;
+    const action = editable ? "Edit" : "Go to";
+    return `<button type="button" aria-label="${action} footnote ${number}" class="qirtaas-page-footnote" data-footnote-id="${escapeHtml(note.id)}"><span class="qirtaas-page-footnote-marker">${marker}</span> ${escapeHtml(note.content)}</button>`;
   }).join("")}</div>`;
 
 const cssPixels = (element: HTMLElement, property: string, fallback: number) => {
@@ -55,11 +52,13 @@ export const BookFootnotes = Extension.create<BookFootnotesOptions>({
 
               const reference = [...view.dom.querySelectorAll<HTMLElement>(".footnote-ref[data-footnote-id]")]
                 .find((element) => element.dataset.footnoteId === pageNote.dataset.footnoteId);
-              const marker = reference?.querySelector<HTMLButtonElement>("button.footnote-marker");
+              const marker = reference?.querySelector<HTMLElement>(".footnote-marker");
               if (!reference || !marker) return false;
 
               event.preventDefault();
-              if (!reference.querySelector(".footnote-popover")) marker.click();
+              if (marker instanceof HTMLButtonElement && !reference.querySelector(".footnote-popover")) {
+                marker.click();
+              }
               reference.scrollIntoView({ block: "center" });
               return true;
             },
@@ -80,6 +79,7 @@ export const BookFootnotes = Extension.create<BookFootnotesOptions>({
           const measureAndPlace = () => {
             const rootRect = view.dom.getBoundingClientRect();
             const gaps = [...view.dom.querySelectorAll<HTMLElement>("#pages > .rm-page-break .rm-pagination-gap")];
+            const gapBottoms = gaps.map((gap) => gap.getBoundingClientRect().bottom);
             const headers = [...view.dom.querySelectorAll<HTMLElement>("#pages > .rm-page-break .rm-page-header")];
             const firstHeader = view.dom.querySelector<HTMLElement>(".rm-first-page-header");
             const rootStyle = getComputedStyle(view.dom);
@@ -107,7 +107,12 @@ export const BookFootnotes = Extension.create<BookFootnotesOptions>({
 
             const measure = document.createElement("div");
             measure.className = "qirtaas-scope qirtaas-page-mode-book qirtaas-footnote-measure";
-            measure.style.font = rootStyle.font;
+            measure.dir = "rtl";
+            measure.style.fontFamily = rootStyle.fontFamily;
+            measure.style.fontSize = rootStyle.fontSize;
+            measure.style.fontWeight = rootStyle.fontWeight;
+            measure.style.fontStyle = rootStyle.fontStyle;
+            measure.style.lineHeight = rootStyle.lineHeight;
             ["--rm-page-width", "--rm-margin-left", "--rm-margin-right"].forEach((property) =>
               measure.style.setProperty(property, rootStyle.getPropertyValue(property)),
             );
@@ -119,24 +124,39 @@ export const BookFootnotes = Extension.create<BookFootnotesOptions>({
             const separatorHeight = Number.parseFloat(areaStyle.borderTopWidth) + Number.parseFloat(areaStyle.paddingTop);
             const noteGap = Number.parseFloat(getComputedStyle(rows[1]!).marginTop);
 
-            const notes: FootnoteData[] = [];
+            const pendingNotes: Omit<FootnoteData, "noteHeight">[] = [];
             view.state.doc.descendants((node, pos) => {
               if (node.type.name !== "footnoteRef") return;
               const dom = view.nodeDOM(pos);
               if (!(dom instanceof HTMLElement)) return;
 
               const markerTop = dom.getBoundingClientRect().top;
-              const page = 1 + gaps.filter((gap) => gap.getBoundingClientRect().bottom <= markerTop).length;
-              rows[0]!.textContent = `${arabicNumber(node.attrs.number)} ${node.attrs.content}`;
-              notes.push({
+              const page = 1 + gapBottoms.filter((bottom) => bottom <= markerTop).length;
+              pendingNotes.push({
                 id: node.attrs.id || String(pos),
                 markerOffset: continuousPageStart(page) + Math.max(0, markerTop - pageStart(page)),
-                noteHeight: rows[0]!.getBoundingClientRect().height,
                 bracketStyle: node.attrs.bracketStyle,
                 content: node.attrs.content,
                 number: node.attrs.number,
               });
             });
+
+            area.replaceChildren();
+            const fragment = document.createDocumentFragment();
+            const measurementRows = pendingNotes.map((note) => {
+              const row = document.createElement("div");
+              row.className = "qirtaas-page-footnote";
+              const number = arabicNumber(note.number);
+              const marker = note.bracketStyle === "brackets" ? `[${number}]` : `(${number})`;
+              row.textContent = `${marker} ${note.content}`;
+              fragment.append(row);
+              return row;
+            });
+            area.append(fragment);
+            const notes: FootnoteData[] = pendingNotes.map((note, index) => ({
+              ...note,
+              noteHeight: measurementRows[index]!.getBoundingClientRect().height,
+            }));
             measure.remove();
 
             const placement = placeFootnotes(notes, capacity, separatorHeight, noteGap);
